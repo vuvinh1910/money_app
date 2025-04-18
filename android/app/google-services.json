@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "274615845708",
+    "project_id": "money-69859",
+    "storage_bucket": "money-69859.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274615845708:android:f478032bcb363a5b1c05e9",
+        "android_client_info": {
+          "package_name": "com.example.money_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "274615845708-p1f3b6q41dhifq48tmc8jsn42p68i6ik.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.money_app",
+            "certificate_hash": "416fd118326bfce99e82f911f358fa02f71d4ab6"
+          }
+        },
+        {
+          "client_id": "274615845708-c05ennrf0d1s1u5rag8e4athnt9158g9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVPrQQG4bVOw3kmQbhZ--fCG-RQFQeXCg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "274615845708-c05ennrf0d1s1u5rag8e4athnt9158g9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "274615845708-6qa5h8mh0mjl14rgr5g13vcpn53vqdte.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.walletExe"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274615845708:android:424de06e2d82ac7d1c05e9",
+        "android_client_info": {
+          "package_name": "com.example.wallet_exe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "274615845708-g14mj6u875uikjofj9f3esp05i541okl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.wallet_exe",
+            "certificate_hash": "416fd118326bfce99e82f911f358fa02f71d4ab6"
+          }
+        },
+        {
+          "client_id": "274615845708-c05ennrf0d1s1u5rag8e4athnt9158g9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVPrQQG4bVOw3kmQbhZ--fCG-RQFQeXCg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "274615845708-c05ennrf0d1s1u5rag8e4athnt9158g9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "274615845708-6qa5h8mh0mjl14rgr5g13vcpn53vqdte.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.walletExe"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
