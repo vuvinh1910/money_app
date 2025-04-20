@@ -30,7 +30,7 @@ class TransactionTable {
   }
 
   Future<List<trans.Transaction>> getAll() async {
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
     final List<Map<String, dynamic>> maps = await db.rawQuery(
         // watch out!! this could be buggy, more than one column name id
         'SELECT * from transaction_table, account , category where transaction_table.id_account = account.id_account and category.id = transaction_table.id_category');
@@ -65,7 +65,7 @@ class TransactionTable {
     transaction.checkValidationAndThrow();
 
     // Get a reference to the database.
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
 
     // Insert the TransactionModel into the table. Also specify the 'conflictAlgorithm'.
     // In this case, if the same category is inserted multiple times, it replaces the previous data.
@@ -78,20 +78,20 @@ class TransactionTable {
 
   Future<int> delete(int transactionId) async {
     // Get a reference to the database.
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
 
     return db.delete(tableName, where: id + '=?', whereArgs: [transactionId]);
   }
 
   Future<void> update(trans.Transaction transaction) async {
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
     await db.update(tableName, transaction.toMap(),
         where: '$id = ?', whereArgs: [transaction.id]);
   }
 
   Future<List<CategorySpend>> getAmountSpendPerCategory(
       TransactionType type) async {
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
     int typeid = type.value;
     final List<Map<String, dynamic>> maps = await db.rawQuery(
         'select category.name as name, sum(amount) as sum from category, transaction_table where category.id = transaction_table.id_category and category.type = $typeid GROUP by category.id ORDER by sum DESC');
@@ -103,7 +103,7 @@ class TransactionTable {
   // return the amount that would reach to spend limit
   Future<int> getMoneySpendByDuration(SpendLimitType type) async {
     int result = 0;
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
     List<Map<String, dynamic>> maps = await db.rawQuery(
         'SELECT * from account, transaction_table , category where transaction_table.id_account = account.id_account and category.id = transaction_table.id_category');
     List<trans.Transaction> list = List.generate(maps.length, (index) {

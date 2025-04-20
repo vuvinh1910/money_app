@@ -34,7 +34,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
   void initState() {
     _transaction = widget.transaction;
     _balanceController.text = textToCurrency(_transaction.amount.toString());
-    _descriptionController.text = _transaction.description;
+    _descriptionController.text = _transaction.description!;
     _category = _transaction.category;
     _account = _transaction.account;
     _selectedDate = _transaction.date;

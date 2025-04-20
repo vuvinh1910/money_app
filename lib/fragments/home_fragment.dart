@@ -29,7 +29,7 @@ class _HomeFragmentState extends State<HomeFragment> {
     super.initState();
   }
 
-  _balaceDetailNav() {
+  _balanceDetailNav() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => BalanceDetailPage()),
@@ -59,7 +59,7 @@ class _HomeFragmentState extends State<HomeFragment> {
                 child: Padding(
                     padding: EdgeInsets.all(15.0),
                     child: InkWell(
-                      onTap: _balaceDetailNav,
+                      onTap: _balanceDetailNav,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[

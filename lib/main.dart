@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,12 +10,12 @@ import 'package:wallet_exe/bloc/spend_limit_bloc.dart';
 import 'package:wallet_exe/bloc/transaction_bloc.dart';
 import 'package:wallet_exe/data/database_helper.dart';
 import 'package:wallet_exe/pages/main_page.dart';
-import 'package:wallet_exe/themes/theme.dart';
+import 'package:wallet_exe/services/AuthService.dart';
+import 'package:wallet_exe/services/sync_service.dart';
 import 'package:wallet_exe/themes/theme_bloc.dart';
 import 'package:wallet_exe/widgets/auth_screen.dart';
 import 'package:wallet_exe/widgets/verify_email.dart';
 import './bloc/account_bloc.dart';
-import 'AuthService/AuthService.dart';
 import 'event/auth_event.dart';
 import 'event/auth_state.dart';
 import 'firebase_options.dart';
@@ -21,30 +23,48 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await DatabaseHelper.instance.init();
+  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
+  await DatabaseHelper.instance.database;
+
+  // Đồng bộ từ cloud khi mở app
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    try {
+      final start = DateTime.now();
+      await SyncService().syncFromCloud(user.uid);
+      final end = DateTime.now();
+      print('Sync from cloud on app start completed in ${end.difference(start).inMilliseconds}ms');
+    } catch (e) {
+      print('Error syncing from cloud on app start: $e');
+    }
+  } else {
+    print('No user logged in on app start');
+  }
+
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // Khởi tạo các bloc
-    var accountBloc = AccountBloc();
-    var transactionBloc = TransactionBloc();
-    var categoryBloc = CategoryBloc();
-    var spendLimitBloc = SpendLimitBloc();
-    var themeBloc = ThemeBloc();
-    var authBloc = AuthBloc(FirebaseAuthService());
+  // Khởi tạo BLoC
+  final accountBloc = AccountBloc();
+  final transactionBloc = TransactionBloc();
+  final categoryBloc = CategoryBloc();
+  final spendLimitBloc = SpendLimitBloc();
+  final themeBloc = ThemeBloc();
+  final authBloc = AuthBloc(FirebaseAuthService());
 
+  MyApp() {
     // Khởi tạo dữ liệu
     accountBloc.initData();
     transactionBloc.initData();
     categoryBloc.initData();
     spendLimitBloc.initData();
-
     // Phát sự kiện AppStarted
     authBloc.add(AppStarted());
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<AccountBloc>.value(value: accountBloc),
@@ -77,7 +97,7 @@ class MyApp extends StatelessWidget {
               } else if (state is AuthNeedsVerification) {
                 return VerifyEmailScreen();
               } else {
-                return AuthScreen(); // vẫn còn khả năng lắng nghe được AuthError nhờ BlocConsumer
+                return AuthScreen();
               }
             },
           ),

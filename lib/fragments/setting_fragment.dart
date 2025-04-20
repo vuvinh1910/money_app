@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wallet_exe/enums/currency.dart';
 import 'package:wallet_exe/enums/language.dart';
+import 'package:wallet_exe/services/Sync_service.dart';
 import 'package:wallet_exe/themes/theme.dart';
 import 'package:wallet_exe/themes/theme_bloc.dart';
 
@@ -16,7 +18,12 @@ class _SettingFragmentState extends State<SettingFragment> {
   Currency _currency = Currency.VIETNAM;
   Language _language = Language.VIETNAM;
 
-  void _submit() {}
+  void _submit() {
+    final user = FirebaseAuth.instance.currentUser;
+    if(user!=null) {
+      SyncService().syncToCloud(user.uid);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

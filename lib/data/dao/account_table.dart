@@ -33,7 +33,7 @@ class AccountTable {
   }
 
   Future<List<String>> getAllAccountName() async {
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
     final List<Map<String, dynamic>> maps = await db.query(tableName);
 
     List<String> result = List.generate(maps.length, (index) {
@@ -46,25 +46,25 @@ class AccountTable {
 
   Future<int> insert(Account account) async {
     // Get a reference to the database.
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
 
     // Insert the Account into the correct table.
     return db.insert(tableName, account.toMap());
   }
 
   Future<void> deleteAccount(Account account) async {
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
     await db.delete(tableName, where: '$id = ?', whereArgs: [account.id]);
   }
 
   Future<void> updateAccount(Account account) async {
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
     await db.update(tableName, account.toMap(),
         where: '$id = ?', whereArgs: [account.id]);
   }
 
   Future<String> getTotalBalance() async {
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
     String rawQuery = 'SELECT SUM(balance) FROM $tableName';
 
     final List<Map<String, dynamic>> map = await db.rawQuery(rawQuery);
@@ -72,7 +72,7 @@ class AccountTable {
   }
 
   Future<String> getUsingBalance() async {
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
     String rawQuery = 'SELECT SUM(balance) FROM $tableName WHERE';
 
     final List<Map<String, dynamic>> map = await db.rawQuery(rawQuery);
@@ -80,7 +80,7 @@ class AccountTable {
   }
 
   Future<List<Account>> getAllAccount() async {
-    final Database db = DatabaseHelper.instance.database;
+    final Database db = await DatabaseHelper.instance.database;
     final List<Map<String, dynamic>> maps = await db.query(tableName);
 
     // List<Account> accounts = List<Account>();

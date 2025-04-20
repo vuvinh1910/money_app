@@ -5,17 +5,29 @@ import 'package:wallet_exe/data/dao/category_table.dart';
 import 'package:wallet_exe/data/dao/spend_limit_table.dart';
 import 'package:wallet_exe/data/dao/transaction_table.dart';
 
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:wallet_exe/data/dao/account_table.dart';
+import 'package:wallet_exe/data/dao/category_table.dart';
+import 'package:wallet_exe/data/dao/spend_limit_table.dart';
+import 'package:wallet_exe/data/dao/transaction_table.dart';
+
 class DatabaseHelper {
   static const DB_NAME = 'wallet.db';
   static const DB_VERSION = 6;
-  static late Database _database;
+  static Database? _database;
 
   DatabaseHelper._internal();
+
   static final DatabaseHelper instance = DatabaseHelper._internal();
 
-  Database get database => _database;
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    await init();
+    return _database!;
+  }
 
-  init() async{
+  Future<void> init() async {
     _database = await openDatabase(
       join(await getDatabasesPath(), DB_NAME),
       onCreate: (db, version) {
@@ -24,13 +36,13 @@ class DatabaseHelper {
         TransactionTable().onCreate(db, version);
         SpendLimitTable().onCreate(db, version);
       },
-      onUpgrade: (db , oldVersion, newVersion) {
+      onUpgrade: (db, oldVersion, newVersion) {
         AccountTable().onCreate(db, newVersion);
         CategoryTable().onCreate(db, newVersion);
         TransactionTable().onCreate(db, newVersion);
         SpendLimitTable().onCreate(db, newVersion);
       },
-      version: DB_VERSION
+      version: DB_VERSION,
     );
   }
 

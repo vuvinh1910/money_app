@@ -42,9 +42,9 @@ class Category {
 
   Category.fromMap(Map<String, dynamic> map)
       : id = map[CategoryTable().id],
-        name = map[CategoryTable().name],
+        name = map[CategoryTable().name] ?? '',
         color = valueToColor(map[CategoryTable().color]),
-        icon = IconData(int.parse(map[CategoryTable().icon]), fontFamily: 'MaterialIcons'),
+        icon = IconData(map[CategoryTable().icon], fontFamily: 'MaterialIcons'),
         transactionType = TransactionType.valueOf(map[CategoryTable().type])!,
-        description = map[CategoryTable().description];
+        description = map[CategoryTable().description] ?? '';
 }
