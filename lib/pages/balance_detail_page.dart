@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:wallet_exe/data/dao/account_table.dart';
 import 'package:nimble_charts/flutter.dart' as charts;
 import 'package:wallet_exe/data/model/Account.dart';
-import 'package:wallet_exe/widgets/item_balance_chart_circle.dart';
+
+class BalanceDetail {
+  final String accountName;
+  double balance;
+  Color color;
+
+  BalanceDetail(this.accountName, this.balance, {this.color = Colors.blue});
+}
 
 class BalanceDetailPage extends StatelessWidget {
-  const BalanceDetailPage({Key ?key}) : super(key: key);
+  const BalanceDetailPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -55,14 +62,17 @@ class BalanceDetailPage extends StatelessWidget {
                   ),
                   total > 0
                       ? Container(
-                          height: 320,
-                          width: double.infinity,
-                          child: BalanceChartCircle(_createData(snapshot.data)),
-                        )
+                    height: 320,
+                    width: double.infinity,
+                    child: _buildPieChart(_createData(snapshot.data)),
+                  )
                       : Container(
-                          height: 320,
-                          width: double.infinity,
-                        ),
+                    height: 320,
+                    width: double.infinity,
+                    child: Center(
+                      child: Text('Không có dữ liệu để hiển thị'),
+                    ),
+                  ),
                   Text('Đơn vị: nghìn'),
                 ],
               );
@@ -75,6 +85,34 @@ class BalanceDetailPage extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildPieChart(List<charts.Series<BalanceDetail, String>> seriesList) {
+    return charts.PieChart<String>(
+      seriesList,
+      animate: true,
+      // Use a different renderer to avoid the type error
+      defaultRenderer: charts.ArcRendererConfig(
+        arcWidth: 60,
+        arcRendererDecorators: [
+          charts.ArcLabelDecorator(
+            labelPosition: charts.ArcLabelPosition.outside,
+          )
+        ],
+      ),
+      behaviors: [
+        charts.DatumLegend(
+          position: charts.BehaviorPosition.end,
+          outsideJustification: charts.OutsideJustification.middleDrawArea,
+          horizontalFirst: false,
+          desiredMaxColumns: 1,
+          cellPadding: EdgeInsets.only(right: 4.0, bottom: 4.0),
+          entryTextStyle: charts.TextStyleSpec(
+            fontSize: 11,
+          ),
+        ),
+      ],
     );
   }
 
@@ -94,26 +132,32 @@ class BalanceDetailPage extends StatelessWidget {
     BalanceDetail last = BalanceDetail("khác", 0);
     for (int i = 0; i < list.length; i++) {
       if (data.length < 6) {
-        BalanceDetail item = BalanceDetail(list[i].name, list[i].balance);
+        BalanceDetail item = BalanceDetail(list[i].name, list[i].balance.toDouble());
+        item.color = colors[i % colors.length]; // Use modulo to avoid index out of range
         data.add(item);
-        data[i].color = colors[i];
       } else if (data.length == 6) {
         last.balance += list[i].balance;
         if (i == list.length - 1) {
+          last.color = colors[6];
           data.add(last);
         }
       }
     }
 
+    // Handle empty data case to avoid rendering issues
+    if (data.isEmpty) {
+      data.add(BalanceDetail("Không có dữ liệu", 0, color: Colors.grey));
+    }
+
     return [
       charts.Series<BalanceDetail, String>(
-        id: 'CategorySpend',
+        id: 'AccountBalance',
         domainFn: (BalanceDetail item, _) => item.accountName,
         measureFn: (BalanceDetail item, _) =>
-            item.balance < 0 ? 0 : item.balance,
+        item.balance < 0 ? 0 : item.balance,
         colorFn: (BalanceDetail item, _) =>
             charts.ColorUtil.fromDartColor(item.color),
-        labelAccessorFn: (BalanceDetail spend, _) => spend.balance.toString(),
+        labelAccessorFn: (BalanceDetail balance, _) => balance.balance.toString(),
         data: data,
       )
     ];

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nimble_charts/flutter.dart' as charts;
 import 'package:wallet_exe/data/dao/transaction_table.dart';
 import 'package:wallet_exe/enums/transaction_type.dart';
-import 'package:wallet_exe/widgets/item_spend_chart_circle.dart';
+
+import 'item_spend_chart_circle.dart';
 
 class CardOutcomeChart extends StatefulWidget {
   const CardOutcomeChart({Key? key}) : super(key: key);
@@ -83,24 +84,58 @@ class _CardOutcomeChartState extends State<CardOutcomeChart> {
                 ),
                 const SizedBox(height: 10),
                 snapshot.data.length > 1
-                    ? SizedBox(
+                    ? Container(
                   height: 320,
                   width: double.infinity,
-                  child: SpendChartCircle(_createData(snapshot.data)),
+                  child: _buildPieChart(_createData(snapshot.data)),
                 )
-                    : Container(),
+                    : Container(
+                  height: 100,
+                  child: Center(
+                    child: Text("Không có dữ liệu chi tiêu"),
+                  ),
+                ),
                 const Text('Đơn vị: VND'),
               ],
             );
           }
 
-          return const SizedBox(
-            width: 50,
-            height: 50,
-            child: CircularProgressIndicator(),
+          return const Center(
+            child: SizedBox(
+              width: 50,
+              height: 50,
+              child: CircularProgressIndicator(),
+            ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildPieChart(List<charts.Series<CategorySpend, String>> seriesList) {
+    return charts.PieChart<String>(
+      seriesList,
+      animate: true,
+      defaultRenderer: charts.ArcRendererConfig(
+        arcWidth: 60,
+        arcRendererDecorators: [
+          charts.ArcLabelDecorator(
+            labelPosition: charts.ArcLabelPosition.outside,
+          ),
+        ],
+      ),
+      behaviors: [
+        charts.DatumLegend(
+          position: charts.BehaviorPosition.end,
+          outsideJustification: charts.OutsideJustification.middleDrawArea,
+          horizontalFirst: false,
+          desiredMaxColumns: 1,
+          cellPadding: const EdgeInsets.only(right: 4.0, bottom: 4.0),
+          entryTextStyle: const charts.TextStyleSpec(
+            fontSize: 11,
+          ),
+        ),
+      ],
     );
   }
 
@@ -121,21 +156,32 @@ class _CardOutcomeChartState extends State<CardOutcomeChart> {
 
     for (int i = 0; i < list.length; i++) {
       if (data.length < 6) {
-        data.add(list[i]);
-        data[i].color = colors[i];
+        // Create a new instance to prevent modifying the original list
+        CategorySpend item = CategorySpend(
+          list[i].category,
+          list[i].money, // Convert to double if needed
+        );
+        item.color = colors[i % colors.length];
+        data.add(item);
       } else if (data.length == 6) {
-        last.money += list[i].money;
+        last.money += list[i].money; // Convert to double if needed
         if (i == list.length - 1) {
+          last.color = colors[6 % colors.length];
           data.add(last);
         }
       }
+    }
+
+    // Handle empty data case
+    if (data.isEmpty) {
+      data.add(CategorySpend("Không có dữ liệu", 0, color: Colors.grey));
     }
 
     return [
       charts.Series<CategorySpend, String>(
         id: 'CategorySpend',
         domainFn: (CategorySpend spend, _) => spend.category,
-        measureFn: (CategorySpend spend, _) => spend.money,
+        measureFn: (CategorySpend spend, _) => spend.money < 0 ? 0 : spend.money,
         colorFn: (CategorySpend spend, _) =>
             charts.ColorUtil.fromDartColor(spend.color),
         labelAccessorFn: (CategorySpend spend, _) => spend.money.toString(),
@@ -143,14 +189,6 @@ class _CardOutcomeChartState extends State<CardOutcomeChart> {
       )
     ];
   }
-}
-
-class CategorySpend {
-  String category;
-  int money;
-  Color color;
-
-  CategorySpend(this.category, this.money, [this.color = Colors.grey]);
 }
 
 class CategoryItem extends StatelessWidget {
@@ -168,6 +206,7 @@ class CategoryItem extends StatelessWidget {
             decoration: BoxDecoration(color: _item.color),
           ),
         ),
+        const SizedBox(width: 5),
         Text(_item.category),
       ],
     );
