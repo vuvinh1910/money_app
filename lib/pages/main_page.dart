@@ -10,6 +10,9 @@ import 'package:wallet_exe/fragments/transaction_fragment.dart';
 import 'package:wallet_exe/pages/add_account_page.dart';
 import 'package:wallet_exe/pages/new_transaction_page.dart';
 
+import '../bloc/auth_bloc.dart';
+import '../event/auth_event.dart';
+
 class DrawerItem {
   final String title;
   final IconData icon;
@@ -29,6 +32,7 @@ class MainPage extends StatefulWidget {
     DrawerItem("Danh sách tài khoản", Icons.view_list),
     DrawerItem("Biểu đồ", Icons.pie_chart),
     DrawerItem("Cài đặt", Icons.settings),
+    DrawerItem("Đăng xuất", Icons.logout),
   ];
 
   @override
@@ -56,17 +60,28 @@ class _MainPageState extends State<MainPage> {
         return ChartFragment();
       case 4:
         return const SettingFragment();
+      case 5:
+        return const MainPage();
       default:
         return const Text("Lỗi: Không tìm thấy mục");
     }
   }
 
-  void _onSelectItem(int index) {
-    setState(() {
-      _selectedDrawerIndex = index;
-    });
-    Navigator.of(context).pop(); // đóng drawer
+  void _logout() {
+    context.read<AuthBloc>().add(SignOut());
   }
+
+  void _onSelectItem(int index) {
+    if (index == 5) {
+      _logout();
+    } else {
+      setState(() {
+        _selectedDrawerIndex = index;
+      });
+      Navigator.of(context).pop(); // đóng drawer
+    }
+  }
+
 
   void _actionAddAccount() {
     Navigator.push(

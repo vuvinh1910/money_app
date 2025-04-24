@@ -105,10 +105,10 @@ class SyncService {
       for (var doc in snapshot.docs) {
         final category = Category.fromMap({
           'id': int.parse(doc.id),
-          'color': doc['color'],
+          'color': doc['color'] is String ? int.parse(doc['color']) : doc['color'],
           'name': doc['name'],
-          'type': doc['type'],
-          'icon': doc['icon'],
+          'type': doc['type'] is String ? int.parse(doc['type']) : doc['type'],
+          'icon': doc['icon'] is String ? int.parse(doc['icon']) : doc['icon'],
           'description': doc['description'] ?? '',
         });
         batch.insert('category', category.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
