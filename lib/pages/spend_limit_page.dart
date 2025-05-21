@@ -20,8 +20,9 @@ class _SpendLimitPageState extends State<SpendLimitPage> {
   @override
   void initState() {
     super.initState();
-    _spendLimitController.text =
-    widget._spendLimit.amount != null ? widget._spendLimit.amount.toString() : '';
+    _spendLimitController.text = widget._spendLimit.amount != null
+        ? widget._spendLimit.amount.toString()
+        : '';
   }
 
   @override
@@ -139,14 +140,13 @@ class _SpendLimitPageState extends State<SpendLimitPage> {
                               decoration: InputDecoration(
                                 suffixText: 'đ',
                                 suffixStyle: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium ??
+                                        .textTheme
+                                        .headlineMedium ??
                                     TextStyle(fontSize: 20),
                                 prefix: Icon(
                                   Icons.monetization_on,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .secondary,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                   size: 26,
                                 ),
                                 hintText: '0',

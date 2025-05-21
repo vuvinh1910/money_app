@@ -42,12 +42,14 @@ class SpendLimitBloc extends BaseBloc {
   }
 
   _updateSpendLimit(SpendLimit spendLimit) async {
-    _spendLimitTable.update(spendLimit);
+    await _spendLimitTable.update(spendLimit);
     int index = _spendLimitListData.indexWhere((item) {
       return item.id == spendLimit.id;
     });
-    _spendLimitListData[index] = spendLimit;
-    _spendLimitListStreamController.sink.add(_spendLimitListData);
+    if (index != -1) {
+      _spendLimitListData[index] = spendLimit;
+      _spendLimitListStreamController.sink.add(_spendLimitListData);
+    }
   }
 
   void dispatchEvent(BaseEvent event) {
