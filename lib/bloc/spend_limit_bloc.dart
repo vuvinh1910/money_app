@@ -10,7 +10,7 @@ class SpendLimitBloc extends BaseBloc {
   SpendLimitTable _spendLimitTable = SpendLimitTable();
 
   StreamController<List<SpendLimit>> _spendLimitListStreamController =
-      StreamController<List<SpendLimit>>();
+      StreamController<List<SpendLimit>>.broadcast();
 
   Stream<List<SpendLimit>> get spendLimitListStream =>
       _spendLimitListStreamController.stream;

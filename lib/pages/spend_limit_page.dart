@@ -7,7 +7,8 @@ import 'package:wallet_exe/utils/text_input_formater.dart';
 
 class SpendLimitPage extends StatefulWidget {
   final SpendLimit _spendLimit;
-  SpendLimitPage(this._spendLimit);
+  final SpendLimitBloc bloc;
+  SpendLimitPage(this._spendLimit, this.bloc);
 
   @override
   _SpendLimitPageState createState() => _SpendLimitPageState();
@@ -27,9 +28,6 @@ class _SpendLimitPageState extends State<SpendLimitPage> {
 
   @override
   Widget build(BuildContext context) {
-    final _bloc = SpendLimitBloc();
-    _bloc.initData();
-
     void _submit() {
       if (!(_formspendLimitKey.currentState?.validate() ?? false)) return;
 
@@ -38,7 +36,7 @@ class _SpendLimitPageState extends State<SpendLimitPage> {
         type: widget._spendLimit.type,
       );
       item.id = widget._spendLimit.id;
-      _bloc.event.add(UpdateSpendLimitEvent(item));
+      widget.bloc.event.add(UpdateSpendLimitEvent(item));
 
       Navigator.pop(context);
     }
@@ -51,7 +49,7 @@ class _SpendLimitPageState extends State<SpendLimitPage> {
         type: widget._spendLimit.type,
       );
       item.id = widget._spendLimit.id;
-      _bloc.event.add(DeleteSpendLimitEvent(item));
+      widget.bloc.event.add(DeleteSpendLimitEvent(item));
 
       Navigator.pop(context);
     }

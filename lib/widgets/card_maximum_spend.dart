@@ -13,6 +13,14 @@ class CardMaximunSpend extends StatefulWidget {
 
 class _CardMaximunSpendState extends State<CardMaximunSpend> {
   int _currentIndex = 1;
+  late SpendLimitBloc _bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = SpendLimitBloc();
+    _bloc.initData();
+  }
 
   _chooseSpendLimit() async {
     int temp = await Navigator.push(
@@ -26,19 +34,10 @@ class _CardMaximunSpendState extends State<CardMaximunSpend> {
     setState(() {});
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   var bloc = Provider.of<SpendLimitBloc>(context);
-  // }
-
   @override
   Widget build(BuildContext context) {
-    var bloc = SpendLimitBloc();
-    bloc.initData();
-
     return StreamBuilder<List<SpendLimit>>(
-      stream: bloc.spendLimitListStream,
+      stream: _bloc.spendLimitListStream,
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -84,7 +83,11 @@ class _CardMaximunSpendState extends State<CardMaximunSpend> {
                     SizedBox(
                       height: 10,
                     ),
-                    MaximunSpendItem(snapshot.data![this._currentIndex]),
+                    if (snapshot.hasData && snapshot.data!.isNotEmpty)
+                      MaximunSpendItem(
+                        snapshot.data![_currentIndex],
+                        bloc: _bloc,
+                      ),
                   ],
                 ));
           default:
@@ -98,5 +101,11 @@ class _CardMaximunSpendState extends State<CardMaximunSpend> {
         }
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
   }
 }
