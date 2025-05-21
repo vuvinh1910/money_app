@@ -10,23 +10,15 @@ import 'package:wallet_exe/utils/text_input_formater.dart';
 
 class MaximunSpendItem extends StatefulWidget {
   final SpendLimit _spendLimit;
+  final SpendLimitBloc bloc;
 
-  const MaximunSpendItem(this._spendLimit, {super.key});
+  const MaximunSpendItem(this._spendLimit, {required this.bloc, super.key});
 
   @override
   State<MaximunSpendItem> createState() => _MaximunSpendItemState();
 }
 
 class _MaximunSpendItemState extends State<MaximunSpendItem> {
-  late SpendLimitBloc _bloc;
-
-  @override
-  void initState() {
-    super.initState();
-    _bloc = SpendLimitBloc();
-    _bloc.initData();
-  }
-
   String _getTimelineString() {
     final now = DateTime.now();
 
@@ -168,13 +160,13 @@ class _MaximunSpendItemState extends State<MaximunSpendItem> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SpendLimitPage(widget._spendLimit),
+          builder: (context) => SpendLimitPage(widget._spendLimit, widget.bloc),
         ),
       );
     }
 
     return StreamBuilder<List<SpendLimit>>(
-      stream: _bloc.spendLimitListStream,
+      stream: widget.bloc.spendLimitListStream,
       builder: (context, spendLimitSnapshot) {
         // Find the current spend limit in the updated list
         SpendLimit currentSpendLimit = widget._spendLimit;
@@ -306,10 +298,5 @@ class _MaximunSpendItemState extends State<MaximunSpendItem> {
         );
       },
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }
