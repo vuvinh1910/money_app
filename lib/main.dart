@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/auth_bloc.dart';
 import 'package:wallet_exe/bloc/category_bloc.dart';
@@ -25,6 +26,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
   await DatabaseHelper.instance.database;
+  await requestNotificationPermission();
 
   // Đồng bộ từ cloud khi mở app
   final user = FirebaseAuth.instance.currentUser;
@@ -76,6 +78,7 @@ class MyApp extends StatelessWidget {
       child: BlocProvider(
         create: (context) => authBloc,
         child: MaterialApp(
+          debugShowCheckedModeBanner: false,
           title: 'Wallet Exe',
           theme: ThemeData(
             primarySwatch: Colors.blue,
@@ -104,5 +107,19 @@ class MyApp extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+Future<void> requestNotificationPermission() async {
+  final status = await Permission.notification.status;
+  if (status.isDenied || status.isPermanentlyDenied) {
+    final result = await Permission.notification.request();
+    if (result.isGranted) {
+      print('Notification permission granted');
+    } else {
+      print('Notification permission denied');
+    }
+  } else {
+    print('Notification permission already granted');
   }
 }

@@ -60,8 +60,6 @@ class _MainPageState extends State<MainPage> {
         return ChartFragment();
       case 4:
         return const SettingFragment();
-      case 5:
-        return const MainPage();
       default:
         return const Text("Lỗi: Không tìm thấy mục");
     }

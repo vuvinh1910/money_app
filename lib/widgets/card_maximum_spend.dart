@@ -5,7 +5,7 @@ import 'package:wallet_exe/pages/choose_spend_limit_page.dart';
 import 'package:wallet_exe/widgets/item_maximum_spend.dart';
 
 class CardMaximunSpend extends StatefulWidget {
-  CardMaximunSpend({Key ?key}) : super(key: key);
+  CardMaximunSpend({Key? key}) : super(key: key);
 
   @override
   _CardMaximunSpendState createState() => _CardMaximunSpendState();
@@ -50,7 +50,6 @@ class _CardMaximunSpendState extends State<CardMaximunSpend> {
               ),
             );
           case ConnectionState.none:
-
           case ConnectionState.active:
             return Container(
                 width: double.infinity,
