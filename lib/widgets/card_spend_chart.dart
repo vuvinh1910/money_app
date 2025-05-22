@@ -16,26 +16,39 @@ class CardSpendChart extends StatefulWidget {
 }
 
 class _CardSpendChartState extends State<CardSpendChart> {
-  DateTime selectedDate = DateTime.now();
+  int selectedYear = DateTime.now().year;
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+  Future<void> _selectYear(BuildContext context) async {
+    final int? picked = await showDialog<int>(
       context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2015, 8),
-      lastDate: DateTime(2101),
+      builder: (BuildContext context) {
+        return Dialog(
+          child: SizedBox(
+            width: 300,
+            height: 400,
+            child: YearPicker(
+              firstDate: DateTime(2015),
+              lastDate: DateTime(2101),
+              initialDate: DateTime(selectedYear),
+              selectedDate: DateTime(selectedYear),
+              onChanged: (DateTime dateTime) {
+                Navigator.pop(context, dateTime.year);
+              },
+            ),
+          ),
+        );
+      },
     );
-    if (picked != null && picked != selectedDate) {
+    if (picked != null && picked != selectedYear) {
       setState(() {
-        selectedDate = picked;
+        selectedYear = picked;
       });
     }
   }
 
   String _getTitle() {
-    String end = (selectedDate.year == DateTime.now().year)
-        ? 'nay'
-        : selectedDate.year.toString();
+    String end =
+        (selectedYear == DateTime.now().year) ? 'nay' : selectedYear.toString();
     return 'Chi tiêu năm ' + end;
   }
 
@@ -59,7 +72,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 Text(
-                  '${textToCurrency((totalYear / DateTime.now().month).round().toString())} đ',
+                  '${textToCurrency((totalYear / 12).round().toString())} đ',
                 ),
               ],
             ),
@@ -101,7 +114,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
           switch (snapshot.connectionState) {
             case ConnectionState.active:
               final List<Transaction> transactions =
-              snapshot.data as List<Transaction>;
+                  snapshot.data as List<Transaction>;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -113,7 +126,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       TextButton(
-                        onPressed: () => _selectDate(context),
+                        onPressed: () => _selectYear(context),
                         child: Row(
                           children: const [
                             Text('Chọn năm'),
@@ -153,7 +166,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
   int _getTotal(List<Transaction> list) {
     int total = 0;
     for (var transaction in list) {
-      if (transaction.date.year == selectedDate.year &&
+      if (transaction.date.year == selectedYear &&
           transaction.category.transactionType == TransactionType.EXPENSE) {
         total += transaction.amount;
       }
@@ -162,41 +175,17 @@ class _CardSpendChartState extends State<CardSpendChart> {
   }
 
   List<charts.Series<MoneySpend, String>> _getData(List<Transaction> list) {
-    List<int> totalByMonth = [];
-    int totalMonth = 0;
-    int flagMonth = 1;
+    List<int> totalByMonth = List.filled(12, 0);
 
-    list.sort((a, b) => a.date.compareTo(b.date));
-    list = list
-        .where((item) =>
-    item.category.transactionType == TransactionType.EXPENSE &&
-        item.date.year == selectedDate.year)
-        .toList();
-
-    for (int i = 0; i < list.length; i++) {
-      while (flagMonth < list[i].date.month) {
-        totalByMonth.add((totalMonth / 1000).round());
-        totalMonth = 0;
-        flagMonth++;
+    for (var transaction in list) {
+      if (transaction.category.transactionType == TransactionType.EXPENSE &&
+          transaction.date.year == selectedYear) {
+        totalByMonth[transaction.date.month - 1] += transaction.amount;
       }
-      if (flagMonth == list[i].date.month) {
-        totalMonth += list[i].amount;
-      }
-      if (flagMonth > list[i].date.month) {
-        totalByMonth.add((totalMonth / 1000).round());
-      }
-      if (i == list.length - 1) {
-        totalByMonth.add((totalMonth / 1000).round());
-      }
-    }
-
-    while (flagMonth <= 12) {
-      totalByMonth.add(0);
-      flagMonth++;
     }
 
     var data = List.generate(totalByMonth.length, (index) {
-      return MoneySpend(index + 1, totalByMonth[index]);
+      return MoneySpend(index + 1, (totalByMonth[index] / 1000).round());
     });
 
     return [
@@ -206,7 +195,10 @@ class _CardSpendChartState extends State<CardSpendChart> {
         domainFn: (MoneySpend spend, _) => spend.month.toString(),
         measureFn: (MoneySpend spend, _) => spend.money,
         data: data,
-      ),
+        // Hiển thị số tiền trên mỗi cột
+        labelAccessorFn: (MoneySpend spend, _) =>
+            spend.money > 0 ? '${spend.money}' : '',
+      )
     ];
   }
 }

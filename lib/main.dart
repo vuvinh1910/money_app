@@ -24,7 +24,8 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
+  FirebaseFirestore.instance.settings =
+      const Settings(persistenceEnabled: true);
   await DatabaseHelper.instance.database;
   await requestNotificationPermission();
 
@@ -35,7 +36,8 @@ void main() async {
       final start = DateTime.now();
       await SyncService().syncFromCloud(user.uid);
       final end = DateTime.now();
-      print('Sync from cloud on app start completed in ${end.difference(start).inMilliseconds}ms');
+      print(
+          'Sync from cloud on app start completed in ${end.difference(start).inMilliseconds}ms');
     } catch (e) {
       print('Error syncing from cloud on app start: $e');
     }
@@ -94,7 +96,8 @@ class MyApp extends StatelessWidget {
             },
             builder: (context, state) {
               if (state is AuthLoading) {
-                return Scaffold(body: Center(child: CircularProgressIndicator()));
+                return Scaffold(
+                    body: Center(child: CircularProgressIndicator()));
               } else if (state is AuthAuthenticated) {
                 return MainPage();
               } else if (state is AuthNeedsVerification) {

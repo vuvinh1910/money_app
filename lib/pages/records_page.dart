@@ -5,7 +5,7 @@ import 'package:wallet_exe/enums/transaction_type.dart';
 import 'package:wallet_exe/utils/text_input_formater.dart';
 
 class RecordsPage extends StatelessWidget {
-  const RecordsPage({Key ?key}) : super(key: key);
+  const RecordsPage({Key? key}) : super(key: key);
 
   _createList(List<Transaction> items) {
     //sort by date
@@ -62,7 +62,7 @@ class RecordsPage extends StatelessWidget {
                       child: Column(
                         children: <Widget>[
                           Column(
-                            children: _createList(snapshot.data ??[]),
+                            children: _createList(snapshot.data ?? []),
                           ),
                         ],
                       ),

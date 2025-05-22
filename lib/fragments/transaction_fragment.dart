@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/account_bloc.dart';
 import 'package:wallet_exe/bloc/transaction_bloc.dart';
 import 'package:wallet_exe/data/dao/account_table.dart';
@@ -14,7 +15,8 @@ class TransactionFragment extends StatefulWidget {
 
 class _TransactionFragmentState extends State<TransactionFragment> {
   DateTime selectedDate = DateTime.now(); // ✅ đã khởi tạo mặc định
-  String _currentOption = "Tất cả"; // ✅ khởi tạo trực tiếp để tránh lỗi non-nullable
+  String _currentOption =
+      "Tất cả"; // ✅ khởi tạo trực tiếp để tránh lỗi non-nullable
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -31,12 +33,13 @@ class _TransactionFragmentState extends State<TransactionFragment> {
     }
   }
 
-  List<DropdownMenuItem<String>> _getDropDownMenuItems(List<String> snapshotData) {
+  List<DropdownMenuItem<String>> _getDropDownMenuItems(
+      List<String> snapshotData) {
     return snapshotData
         .map((option) => DropdownMenuItem<String>(
-      value: option,
-      child: Text(option),
-    ))
+              value: option,
+              child: Text(option),
+            ))
         .toList();
   }
 
@@ -45,7 +48,8 @@ class _TransactionFragmentState extends State<TransactionFragment> {
     List<Transaction> filter = list;
 
     if (_currentOption != "Tất cả") {
-      filter = list.where((item) => item.account.name == _currentOption).toList();
+      filter =
+          list.where((item) => item.account.name == _currentOption).toList();
     }
 
     // nếu người dùng chọn 1 ngày cụ thể
@@ -54,9 +58,9 @@ class _TransactionFragmentState extends State<TransactionFragment> {
         selectedDate.year != DateTime.now().year) {
       filter = filter
           .where((item) =>
-      item.date.year == selectedDate.year &&
-          item.date.month == selectedDate.month &&
-          item.date.day == selectedDate.day)
+              item.date.year == selectedDate.year &&
+              item.date.month == selectedDate.month &&
+              item.date.day == selectedDate.day)
           .toList();
       result.add(CardTransaction(filter, selectedDate));
       return result;
@@ -68,9 +72,9 @@ class _TransactionFragmentState extends State<TransactionFragment> {
     for (int i = 0; i < 7; i++) {
       filter = tempFilter
           .where((item) =>
-      item.date.year == flagDate.year &&
-          item.date.month == flagDate.month &&
-          item.date.day == flagDate.day)
+              item.date.year == flagDate.year &&
+              item.date.month == flagDate.month &&
+              item.date.day == flagDate.day)
           .toList();
       result.add(CardTransaction(filter, flagDate));
       result.add(const SizedBox(height: 15));
@@ -91,7 +95,7 @@ class _TransactionFragmentState extends State<TransactionFragment> {
   @override
   Widget build(BuildContext context) {
     final blocAccount = AccountBloc();
-    final blocTransaction = TransactionBloc();
+    final blocTransaction = Provider.of<TransactionBloc>(context, listen: true);
     blocAccount.initData();
     blocTransaction.initData();
 
@@ -112,19 +116,24 @@ class _TransactionFragmentState extends State<TransactionFragment> {
                           children: <Widget>[
                             Text(
                               'Tài khoản:',
-                              style: Theme.of(context).textTheme.titleMedium, // ✅ thay subtitle1 bằng titleMedium
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium, // ✅ thay subtitle1 bằng titleMedium
                             ),
                             const SizedBox(width: 10),
                             FutureBuilder<List<String>>(
                               future: AccountTable().getAllAccountName(),
-                              builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot2) {
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<List<String>> snapshot2) {
                                 if (snapshot2.hasError) {
                                   return Text(snapshot2.error.toString());
                                 } else if (snapshot2.hasData) {
                                   return DropdownButton<String>(
                                     value: _currentOption,
-                                    items: _getDropDownMenuItems(snapshot2.data!),
-                                    onChanged: changedDropDownItem, // ✅ đúng kiểu
+                                    items:
+                                        _getDropDownMenuItems(snapshot2.data!),
+                                    onChanged:
+                                        changedDropDownItem, // ✅ đúng kiểu
                                   );
                                 }
                                 return const SizedBox(

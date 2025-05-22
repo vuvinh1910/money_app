@@ -155,9 +155,10 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
                         Text(
                           'Ghi',
                           style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(color: Theme.of(context).primaryColor) ??
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                      color: Theme.of(context).primaryColor) ??
                               const TextStyle(fontSize: 18),
                         ),
                       ],
@@ -223,8 +224,7 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
                     autofocus: true,
                     decoration: InputDecoration(
                       suffixText: 'đ',
-                      suffixStyle:
-                      Theme.of(context).textTheme.headlineMedium,
+                      suffixStyle: Theme.of(context).textTheme.headlineMedium,
                       prefix: Icon(
                         Icons.monetization_on,
                         color: Theme.of(context).colorScheme.secondary,
@@ -272,7 +272,7 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
             onTap: () async {
               category = await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) =>  CategoryPage()),
+                MaterialPageRoute(builder: (context) => CategoryPage()),
               );
               setState(() {});
             },
@@ -302,9 +302,9 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
             iconWidget: _account == null
                 ? const Icon(Icons.account_balance_wallet, size: 28)
                 : Padding(
-              padding: const EdgeInsets.all(8),
-              child: Image.asset(_account!.img),
-            ),
+                    padding: const EdgeInsets.all(8),
+                    child: Image.asset(_account!.img),
+                  ),
             label: _account?.name ?? 'Chọn tài khoản',
             onTap: () async {
               _account = await Navigator.push(
@@ -321,12 +321,12 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
 
   Widget _buildRowItem(BuildContext context,
       {IconData? icon,
-        Widget? iconWidget,
-        String? label,
-        Widget? child,
-        String? trailingLabel,
-        VoidCallback? onTap,
-        VoidCallback? trailingTap}) {
+      Widget? iconWidget,
+      String? label,
+      Widget? child,
+      String? trailingLabel,
+      VoidCallback? onTap,
+      VoidCallback? trailingTap}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: InkWell(
