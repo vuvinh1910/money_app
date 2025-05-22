@@ -23,7 +23,7 @@ class _CardMaximunSpendState extends State<CardMaximunSpend> {
   }
 
   _chooseSpendLimit() async {
-    int temp = await Navigator.push(
+    var temp = await Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => ChooseSpendLimitPage(_currentIndex)),

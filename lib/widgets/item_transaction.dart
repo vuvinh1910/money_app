@@ -15,7 +15,8 @@ class ItemTransaction extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => UpdateTransactionPage(_transaction)),
+          MaterialPageRoute(
+              builder: (context) => UpdateTransactionPage(_transaction)),
         );
       },
       leading: Padding(

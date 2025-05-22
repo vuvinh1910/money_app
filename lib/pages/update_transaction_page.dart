@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/account_bloc.dart';
 import 'package:wallet_exe/bloc/transaction_bloc.dart';
 import 'package:wallet_exe/data/model/Account.dart';
@@ -58,7 +59,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? time =
-    await showTimePicker(context: context, initialTime: _selectedTime);
+        await showTimePicker(context: context, initialTime: _selectedTime);
     if (time != null) {
       setState(() {
         _selectedTime = time;
@@ -69,7 +70,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
   String _getDate() {
     DateTime date = _selectedDate;
     String wd =
-    date.weekday == 7 ? "Chủ Nhật" : "Thứ " + (date.weekday + 1).toString();
+        date.weekday == 7 ? "Chủ Nhật" : "Thứ " + (date.weekday + 1).toString();
     String datePart = "${date.day}/${date.month}/${date.year}";
     return "$wd - $datePart";
   }
@@ -88,7 +89,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
   @override
   Widget build(BuildContext context) {
-    var _bloc = TransactionBloc();
+    var _bloc = Provider.of<TransactionBloc>(context, listen: false);
     var _blocAccount = AccountBloc();
     _bloc.initData();
     _blocAccount.initData();
@@ -139,6 +140,12 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
       Navigator.pop(context);
     }
 
+    void _delete() {
+      _bloc.event.add(DeleteTransactionEvent(_transaction));
+      // Nếu muốn cập nhật lại số dư tài khoản sau khi xóa, xử lý ở đây nếu cần
+      Navigator.pop(context);
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text('Chi tiết giao dịch')),
       body: SingleChildScrollView(
@@ -150,7 +157,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
               SizedBox(height: 15),
               _buildTransactionDetail(context),
               SizedBox(height: 15),
-              _buildButtons(context, _submit),
+              _buildButtons(context, _submit, _delete),
               SizedBox(height: 15),
             ],
           ),
@@ -194,8 +201,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                     ),
                     decoration: InputDecoration(
                       suffixText: 'đ',
-                      suffixStyle:
-                      Theme.of(context).textTheme.titleLarge,
+                      suffixStyle: Theme.of(context).textTheme.titleLarge,
                       prefix: Icon(
                         Icons.monetization_on,
                         color: Theme.of(context).colorScheme.secondary,
@@ -291,8 +297,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                     style: TextStyle(fontSize: 18),
                   ),
             ),
-            if (trailing != null)
-              InkWell(onTap: trailingTap, child: trailing),
+            if (trailing != null) InkWell(onTap: trailingTap, child: trailing),
             Icon(Icons.keyboard_arrow_right),
           ],
         ),
@@ -300,12 +305,13 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
     );
   }
 
-  Widget _buildButtons(BuildContext context, VoidCallback onSubmit) {
+  Widget _buildButtons(
+      BuildContext context, VoidCallback onSubmit, VoidCallback onDelete) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
-          _buildActionBtn(Icons.delete, 'Xóa', onSubmit),
+          _buildActionBtn(Icons.delete, 'Xóa', onDelete),
           _buildActionBtn(Icons.save, 'Lưu', onSubmit),
         ],
       ),

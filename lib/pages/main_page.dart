@@ -53,7 +53,7 @@ class _MainPageState extends State<MainPage> {
       case 0:
         return HomeFragment();
       case 1:
-        return const TransactionFragment();
+        return TransactionFragment();
       case 2:
         return AccountFragment();
       case 3:
@@ -79,7 +79,6 @@ class _MainPageState extends State<MainPage> {
       Navigator.of(context).pop(); // đóng drawer
     }
   }
-
 
   void _actionAddAccount() {
     Navigator.push(

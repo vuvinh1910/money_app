@@ -10,7 +10,7 @@ class TransactionBloc extends BaseBloc {
   TransactionTable _transactionTable = TransactionTable();
 
   StreamController<List<Transaction>> _transactionListStreamController =
-      StreamController<List<Transaction>>();
+      StreamController<List<Transaction>>.broadcast();
 
   Stream<List<Transaction>> get transactionListStream =>
       _transactionListStreamController.stream;
@@ -19,12 +19,10 @@ class TransactionBloc extends BaseBloc {
 
   List<Transaction> get transactionListData => _transactionListData;
 
-  initData() async {
-    if (_transactionListData.length != 0) return;
-    _transactionListData = await _transactionTable.getAll();
-    if (_transactionListData == null) return;
-
-    print('transaction bloc init');
+  void initData() async {
+    _transactionListData = await _transactionTable.getAll() ?? [];
+    print(
+        'TransactionBloc init: Loaded ${_transactionListData.length} transactions');
     _transactionListStreamController.sink.add(_transactionListData);
   }
 
