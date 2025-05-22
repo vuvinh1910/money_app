@@ -9,7 +9,8 @@ import 'package:wallet_exe/event/base_event.dart';
 class TransactionBloc extends BaseBloc {
   TransactionTable _transactionTable = TransactionTable();
 
-  StreamController<List<Transaction>> _transactionListStreamController =
+  // Đảm bảo StreamController là broadcast và được khởi tạo một lần
+  final _transactionListStreamController =
       StreamController<List<Transaction>>.broadcast();
 
   Stream<List<Transaction>> get transactionListStream =>
@@ -23,31 +24,36 @@ class TransactionBloc extends BaseBloc {
     _transactionListData = await _transactionTable.getAll() ?? [];
     print(
         'TransactionBloc init: Loaded ${_transactionListData.length} transactions');
-    _transactionListStreamController.sink.add(_transactionListData);
+    if (!_transactionListStreamController.isClosed) {
+      _transactionListStreamController.sink.add(_transactionListData);
+    }
   }
 
   _addTransaction(Transaction transaction) async {
-    _transactionTable.insert(transaction);
-
+    await _transactionTable.insert(transaction);
     _transactionListData.add(transaction);
-    _transactionListStreamController.sink.add(_transactionListData);
+    if (!_transactionListStreamController.isClosed) {
+      _transactionListStreamController.sink.add(_transactionListData);
+    }
   }
 
   _deleteTransaction(Transaction transaction) async {
-    _transactionTable.delete(transaction.id!);
-
-    _transactionListData.remove(transaction);
-    _transactionListStreamController.sink.add(_transactionListData);
+    await _transactionTable.delete(transaction.id!);
+    _transactionListData.removeWhere((item) => item.id == transaction.id);
+    if (!_transactionListStreamController.isClosed) {
+      _transactionListStreamController.sink.add(_transactionListData);
+    }
   }
 
   _updateTransaction(Transaction transaction) async {
-    _transactionTable.update(transaction);
-
+    await _transactionTable.update(transaction);
     int index = _transactionListData.indexWhere((item) {
       return item.id == transaction.id;
     });
     _transactionListData[index] = transaction;
-    _transactionListStreamController.sink.add(_transactionListData);
+    if (!_transactionListStreamController.isClosed) {
+      _transactionListStreamController.sink.add(_transactionListData);
+    }
   }
 
   void dispatchEvent(BaseEvent event) {
@@ -65,6 +71,7 @@ class TransactionBloc extends BaseBloc {
 
   @override
   void dispose() {
+    _transactionListStreamController.close();
     super.dispose();
   }
 }
