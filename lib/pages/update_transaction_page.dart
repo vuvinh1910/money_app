@@ -142,7 +142,15 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
     void _delete() {
       _bloc.event.add(DeleteTransactionEvent(_transaction));
-      // Nếu muốn cập nhật lại số dư tài khoản sau khi xóa, xử lý ở đây nếu cần
+
+      // Update account balance after deletion
+      if (_category.transactionType == TransactionType.EXPENSE) {
+        _account.balance += _transaction.amount; // Add back the expense amount
+      } else {
+        _account.balance -= _transaction.amount; // Subtract the income amount
+      }
+
+      _blocAccount.event.add(UpdateAccountEvent(_account));
       Navigator.pop(context);
     }
 
