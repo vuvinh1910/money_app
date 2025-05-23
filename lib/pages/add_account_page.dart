@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/account_bloc.dart';
 import 'package:wallet_exe/data/model/Account.dart';
 import 'package:wallet_exe/enums/account_type.dart';
@@ -61,7 +62,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
   List<DropdownMenuItem<String>> getDropDownMenuItems() {
     return _option
         .map((option) =>
-        DropdownMenuItem(value: option.name, child: Text(option.name)))
+            DropdownMenuItem(value: option.name, child: Text(option.name)))
         .toList();
   }
 
@@ -75,7 +76,8 @@ class _AddAccountPageState extends State<AddAccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    final _bloc = AccountBloc();
+    final _bloc = Provider.of<AccountBloc>(context, listen: false);
+    _bloc.initData();
 
     void _submit() {
       if (!(_formNameKey.currentState?.validate() ?? false)) return;
@@ -90,11 +92,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
       );
 
       _bloc.event.add(AddAccountEvent(account));
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => MainPage(index: 2),
-        ),
-      );
+      Navigator.pop(context);
     }
 
     return Scaffold(
@@ -194,8 +192,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
                       Text(
                         'Loại:',
                         style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black.withOpacity(0.5)),
+                            fontSize: 18, color: Colors.black.withOpacity(0.5)),
                       ),
                       const SizedBox(width: 10),
                       DropdownButton<String>(

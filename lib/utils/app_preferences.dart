@@ -9,9 +9,14 @@ class AppPreferences {
     await prefs.setInt(_selectedSpendLimitIndexKey, index);
   }
 
-  static Future<int?> getSelectedSpendLimitIndex() async {
+  static Future<int> getSelectedSpendLimitIndex({int defaultIndex = 1}) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt(_selectedSpendLimitIndexKey);
+    final index = prefs.getInt(_selectedSpendLimitIndexKey);
+    if (index == null) {
+      await prefs.setInt(_selectedSpendLimitIndexKey, defaultIndex);
+      return defaultIndex;
+    }
+    return index;
   }
 
   // Có thể thêm các hàm khác cho các preference khác ở đây

@@ -19,14 +19,13 @@ class CategoryBloc extends BaseBloc {
 
   List<Category> get categoryListData => _categoryListData;
 
-  initData() async {
-    if (_categoryListData.length != 0) return;
-    _categoryListData = await _categorytable.getAll();
-    if (_categoryListData == null) return;
+  void initData() async {
+    _categoryListData = await _categorytable.getAll() ?? [];
+    print('CategoryBloc init: Loaded ${_categoryListData.length} categories');
 
-    print('category bloc init');
-
-    _categoryListStreamController.sink.add(_categoryListData);
+    if (!_categoryListStreamController.isClosed) {
+      _categoryListStreamController.sink.add(_categoryListData);
+    }
   }
 
   _addCategory(Category category) async {

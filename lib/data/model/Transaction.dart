@@ -43,24 +43,28 @@ class Transaction {
     return Transaction(
       id: map[TransactionTable().id],
       account: Account.fromMap({
-        'id_account': map['id_account'],
+        // Sử dụng các key trực tiếp từ map kết quả JOIN
+        // Đảm bảo các key này khớp với alias trong truy vấn SQL
+        'id_account': map['account_id'], // ✅ Sửa thành alias 'account_id'
         'account_name': map['account_name'],
         'balance': map['balance'],
-        'type': map['type'],
-        'icon': map['icon'],
+        'type': map['account_type'], // ✅ Sửa thành alias 'account_type'
+        'icon': map['account_icon'], // ✅ Sửa thành alias 'account_icon'
         'img': map['img'],
       }),
       category: Category.fromMap({
-        'id': map['id'],
+        // Sử dụng các key trực tiếp từ map kết quả JOIN
+        // Đảm bảo các key này khớp với alias trong truy vấn SQL
+        'id': map['category_id'], // ✅ Sửa thành alias 'category_id'
         'color': map['color'],
         'name': map['name'],
-        'type': map['type'],
-        'icon': map['icon'],
-        'description': map['description'] ?? '', // ✅ fallback nếu null
+        'type': map['category_type'], // ✅ Sửa thành alias 'category_type'
+        'icon': map['category_icon'], // ✅ Sửa thành alias 'category_icon'
+        'description': map['category_description'] ?? '',
       }),
       date: DateTime.parse(map[TransactionTable().date]),
       amount: map[TransactionTable().amount],
-      description: map[TransactionTable().description] ?? '', // ✅ fallback
+      description: map[TransactionTable().description] ?? '',
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/account_bloc.dart';
 import 'package:wallet_exe/bloc/transaction_bloc.dart';
 import 'package:wallet_exe/data/model/Account.dart';
@@ -85,9 +86,9 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
 
   @override
   Widget build(BuildContext context) {
-    var _bloc = TransactionBloc();
-    var _blocAccount = AccountBloc();
-    var _categoryBloc = CategoryBloc();
+    var _bloc = Provider.of<TransactionBloc>(context);
+    var _blocAccount = Provider.of<AccountBloc>(context);
+    var _categoryBloc = Provider.of<CategoryBloc>(context);
 
     _categoryBloc.initData();
     _bloc.initData();
@@ -123,10 +124,7 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
 
       _blocAccount.event.add(UpdateAccountEvent(_account!));
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainPage(index: 0)),
-      );
+      Navigator.pop(context);
     }
 
     return Scaffold(

@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wallet_exe/bloc/account_bloc.dart';
+import 'package:wallet_exe/bloc/account_bloc.dart'; // Giữ lại import này nếu các fragment cần
 import 'package:wallet_exe/fragments/account_fragment.dart';
 import 'package:wallet_exe/fragments/chart_fragment.dart';
 import 'package:wallet_exe/fragments/home_fragment.dart';
@@ -23,7 +23,6 @@ class DrawerItem {
 class MainPage extends StatefulWidget {
   final int index;
 
-  // Null safety: key có thể null, index mặc định là 0
   const MainPage({Key? key, this.index = 0}) : super(key: key);
 
   final drawerItems = const [
@@ -137,7 +136,9 @@ class _MainPageState extends State<MainPage> {
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.brown,
                 child: Text(
-                  email[0].toUpperCase(),
+                  email.isNotEmpty
+                      ? email[0].toUpperCase()
+                      : '?', // Kiểm tra email rỗng
                   style: TextStyle(fontSize: 25),
                 ),
               ),
@@ -148,12 +149,13 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
       ),
-      body: Provider<AccountBloc>.value(
-        value: AccountBloc(),
-        child: SingleChildScrollView(
-          child: _getDrawerItemWidget(_selectedDrawerIndex),
-        ),
+      // ***** PHẦN SỬA ĐỔI CHÍNH *****
+      // Loại bỏ Provider.value ở đây. Các widget con sẽ
+      // tự động lấy BLoC từ Provider ở MyApp.
+      body: SingleChildScrollView(
+        child: _getDrawerItemWidget(_selectedDrawerIndex),
       ),
+      // *******************************
     );
   }
 }

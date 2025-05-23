@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/account_bloc.dart';
 import 'package:wallet_exe/data/dao/account_table.dart';
 import 'package:wallet_exe/data/model/Account.dart';
@@ -6,7 +7,6 @@ import 'package:wallet_exe/enums/account_type.dart';
 import 'package:wallet_exe/widgets/item_account.dart';
 
 class CardListAccount extends StatefulWidget {
-  CardListAccount({Key? key}) : super(key: key);
 
   @override
   _CardListAccountState createState() => _CardListAccountState();
@@ -16,11 +16,17 @@ class _CardListAccountState extends State<CardListAccount> {
   _createListAccountTile(List<Account> listAccount) {
     return listAccount.map((account) => ItemAccount(account)).toList();
   }
+  late AccountBloc bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    bloc = Provider.of<AccountBloc>(context, listen: false);
+    bloc.initData(); // chỉ gọi 1 lần khi widget khởi tạo
+  }
 
   @override
   Widget build(BuildContext context) {
-    AccountBloc bloc = AccountBloc();
-    bloc.initData();
 
     return StreamBuilder<List<Account>>(
       stream: bloc.accountListStream,

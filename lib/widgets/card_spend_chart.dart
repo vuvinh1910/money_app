@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/transaction_bloc.dart';
 import 'package:wallet_exe/data/model/Transaction.dart';
 import 'package:wallet_exe/enums/transaction_type.dart';
@@ -54,7 +55,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
 
   @override
   Widget build(BuildContext context) {
-    var _bloc = TransactionBloc();
+    var _bloc = Provider.of<TransactionBloc>(context);
     _bloc.initData();
 
     Widget _detailContent(int totalYear) {

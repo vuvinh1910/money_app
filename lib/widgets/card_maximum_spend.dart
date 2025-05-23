@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/spend_limit_bloc.dart';
 import 'package:wallet_exe/data/model/SpendLimit.dart';
 import 'package:wallet_exe/pages/choose_spend_limit_page.dart';
@@ -14,13 +15,10 @@ class CardMaximunSpend extends StatefulWidget {
 
 class _CardMaximunSpendState extends State<CardMaximunSpend> {
   int _currentIndex = 1;
-  late SpendLimitBloc _bloc;
 
   @override
   void initState() {
     super.initState();
-    _bloc = SpendLimitBloc();
-    _bloc.initData();
     AppPreferences.getSelectedSpendLimitIndex().then((value) {
       if (value != null) {
         setState(() {
@@ -47,6 +45,8 @@ class _CardMaximunSpendState extends State<CardMaximunSpend> {
 
   @override
   Widget build(BuildContext context) {
+    final _bloc = Provider.of<SpendLimitBloc>(context);
+    _bloc.initData();
     return StreamBuilder<List<SpendLimit>>(
       stream: _bloc.spendLimitListStream,
       builder: (context, snapshot) {
@@ -116,7 +116,6 @@ class _CardMaximunSpendState extends State<CardMaximunSpend> {
 
   @override
   void dispose() {
-    _bloc.dispose();
     super.dispose();
   }
 }

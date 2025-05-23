@@ -6,6 +6,8 @@ import 'package:wallet_exe/utils/text_input_formater.dart';
 import 'package:wallet_exe/widgets/card_balance.dart';
 import 'package:wallet_exe/widgets/card_maximum_spend.dart';
 import 'package:wallet_exe/widgets/card_spend_chart.dart';
+import 'package:provider/provider.dart';
+import 'package:wallet_exe/bloc/account_bloc.dart';
 
 class HomeFragment extends StatefulWidget {
   HomeFragment({Key? key}) : super(key: key);
@@ -15,15 +17,6 @@ class HomeFragment extends StatefulWidget {
 }
 
 class _HomeFragmentState extends State<HomeFragment> {
-  // get total balance
-  int getTotalBalance(List<Account> accounts) {
-    int totalBalance = 0;
-    for (Account account in accounts) {
-      totalBalance += account.balance;
-    }
-    return totalBalance;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -38,6 +31,9 @@ class _HomeFragmentState extends State<HomeFragment> {
 
   @override
   Widget build(BuildContext context) {
+    final accountBloc = Provider.of<AccountBloc>(context);
+    accountBloc.initData();
+
     return Container(
       child: Column(
         children: <Widget>[
@@ -72,29 +68,28 @@ class _HomeFragmentState extends State<HomeFragment> {
                               color: Theme.of(context).canvasColor,
                             ),
                           ),
-                          FutureBuilder(
-                              future: AccountTable().getTotalBalance(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot snapshot) {
-                                if (snapshot.hasError) {
-                                  print(snapshot.error.toString());
-                                  return Center(
-                                      child: Text(snapshot.error.toString()));
-                                } else if (snapshot.hasData) {
-                                  return Text(
-                                    textToCurrency(snapshot.data.toString()),
-                                    style: TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.w600,
-                                        color: Theme.of(context).primaryColor),
-                                  );
-                                }
-                                return Container(
-                                  width: 50,
-                                  height: 50,
-                                  child: CircularProgressIndicator(),
+                          StreamBuilder<int>(
+                            stream: accountBloc.totalBalanceStream,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                return Center(
+                                    child: Text(snapshot.error.toString()));
+                              } else if (snapshot.hasData) {
+                                return Text(
+                                  textToCurrency(snapshot.data.toString()),
+                                  style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).primaryColor),
                                 );
-                              }),
+                              }
+                              return Container(
+                                width: 50,
+                                height: 50,
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                          ),
                           Icon(
                             Icons.navigate_next,
                             size: 30,

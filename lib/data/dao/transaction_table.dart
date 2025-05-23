@@ -6,6 +6,8 @@ import 'package:wallet_exe/enums/transaction_type.dart';
 import 'package:wallet_exe/widgets/item_spend_chart_circle.dart';
 
 import '../database_helper.dart';
+import '../model/Account.dart';
+import '../model/Category.dart';
 
 class TransactionTable {
   final tableName = 'transaction_table';
@@ -31,12 +33,50 @@ class TransactionTable {
 
   Future<List<trans.Transaction>> getAll() async {
     final Database db = await DatabaseHelper.instance.database;
-    final List<Map<String, dynamic>> maps = await db.rawQuery(
-        // watch out!! this could be buggy, more than one column name id
-        'SELECT * from transaction_table, account , category where transaction_table.id_account = account.id_account and category.id = transaction_table.id_category');
+
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT
+        transaction_table.id_transaction, transaction_table.date, transaction_table.amount,
+        transaction_table.description, transaction_table.id_category, transaction_table.id_account,
+
+        account.id_account AS account_id, account.account_name, account.balance,
+        account.type AS account_type, account.icon AS account_icon, account.img,
+
+        category.id AS category_id, category.color, category.name,
+        category.type AS category_type, category.icon AS category_icon, category.description AS category_description
+
+      FROM transaction_table
+      JOIN account ON transaction_table.id_account = account.id_account
+      JOIN category ON transaction_table.id_category = category.id
+    ''');
 
     return List.generate(maps.length, (index) {
-      return trans.Transaction.fromMap(maps[index]);
+      final map = maps[index];
+
+      return trans.Transaction(
+        id: map['id_transaction'],
+        amount: map['amount'],
+        date: DateTime.parse(map['date']),
+        description: map['description'] ?? '',
+
+        account: Account.fromMap({
+          'id_account': map['account_id'], // ✅ Dùng alias đã đặt: 'account_id'
+          'account_name': map['account_name'],
+          'balance': map['balance'],
+          'type': map['account_type'],
+          'icon': map['account_icon'],
+          'img': map['img'],
+        }),
+
+        category: Category.fromMap({
+          'id': map['category_id'], // ✅ Dùng alias đã đặt: 'category_id'
+          'name': map['name'],
+          'color': map['color'],
+          'type': map['category_type'],
+          'icon': map['category_icon'],
+          'description': map['category_description'] ?? '',
+        }),
+      );
     });
   }
 
@@ -103,8 +143,22 @@ class TransactionTable {
   Future<int> getMoneySpendByDuration(SpendLimitType type) async {
     int result = 0;
     final Database db = await DatabaseHelper.instance.database;
-    List<Map<String, dynamic>> maps = await db.rawQuery(
-        'SELECT * from account, transaction_table , category where transaction_table.id_account = account.id_account and category.id = transaction_table.id_category');
+    // ✅ Sửa câu truy vấn để liệt kê và alias các cột rõ ràng
+    List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT
+        transaction_table.id_transaction, transaction_table.date, transaction_table.amount,
+        transaction_table.description, transaction_table.id_category, transaction_table.id_account,
+
+        account.id_account AS account_id, account.account_name, account.balance,
+        account.type AS account_type, account.icon AS account_icon, account.img,
+
+        category.id AS category_id, category.color, category.name,
+        category.type AS category_type, category.icon AS category_icon, category.description AS category_description
+
+      FROM transaction_table
+      JOIN account ON transaction_table.id_account = account.id_account
+      JOIN category ON transaction_table.id_category = category.id
+    ''');
     List<trans.Transaction> list = List.generate(maps.length, (index) {
       return trans.Transaction.fromMap(maps[index]);
     });

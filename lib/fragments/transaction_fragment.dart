@@ -94,8 +94,8 @@ class _TransactionFragmentState extends State<TransactionFragment> {
 
   @override
   Widget build(BuildContext context) {
-    final blocAccount = AccountBloc();
-    final blocTransaction = Provider.of<TransactionBloc>(context, listen: true);
+    final blocAccount = Provider.of<AccountBloc>(context, listen: false);
+    final blocTransaction = Provider.of<TransactionBloc>(context, listen: false);
     blocAccount.initData();
     blocTransaction.initData();
 

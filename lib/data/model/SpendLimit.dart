@@ -28,6 +28,8 @@ class SpendLimit {
 
   SpendLimit.fromMap(Map<String, dynamic> map)
       : id = map[SpendLimitTable().id],
-        amount = map[SpendLimitTable().amount],
-        type = SpendLimitType.valueOf(map[SpendLimitTable().type])!;
+  // ✅ Thêm null-aware operator để an toàn hơn
+        amount = map[SpendLimitTable().amount] ?? 0, // Cung cấp giá trị mặc định nếu null
+  // ✅ Thêm null-aware operator và kiểm tra null cho valueOf
+        type = SpendLimitType.valueOf(map[SpendLimitTable().type] ?? 0) ?? SpendLimitType.MONTHLY; // Cung cấp giá trị mặc định nếu null
 }
