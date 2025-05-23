@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/transaction_bloc.dart';
 import 'package:wallet_exe/data/dao/transaction_table.dart';
 import 'package:wallet_exe/data/model/Transaction.dart';
@@ -7,7 +8,8 @@ import 'package:wallet_exe/pages/records_page.dart';
 import 'package:wallet_exe/utils/text_input_formater.dart';
 
 class Cardbalance extends StatefulWidget {
-  const Cardbalance({Key? key}) : super(key: key); // ✅ sửa key nullable và dùng const
+  const Cardbalance({Key? key})
+      : super(key: key); // ✅ sửa key nullable và dùng const
 
   @override
   _CardbalanceState createState() => _CardbalanceState();
@@ -48,7 +50,7 @@ class _CardbalanceState extends State<Cardbalance> {
 
   @override
   Widget build(BuildContext context) {
-    var _bloc = TransactionBloc();
+    final _bloc = Provider.of<TransactionBloc>(context);
     _bloc.initData();
 
     return StreamBuilder<List<Transaction>>(
@@ -62,8 +64,9 @@ class _CardbalanceState extends State<Cardbalance> {
 
               final values = TransactionTable().getTotal(
                   snapshot.data!, // ✅ chắc chắn không null ở đây
-                  DurationFilter.valueFromName(_currentOption)! // ✅ đảm bảo không null
-              );
+                  DurationFilter.valueFromName(
+                      _currentOption)! // ✅ đảm bảo không null
+                  );
 
               final inCome = values[0];
               final outCome = values[1];
@@ -102,14 +105,13 @@ class _CardbalanceState extends State<Cardbalance> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Text('Tình hình thu chi',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium),
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium),
                               Padding(
                                 padding: const EdgeInsets.all(20.0),
                                 child: Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceAround,
+                                      MainAxisAlignment.spaceAround,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: <Widget>[
                                     Container(
@@ -147,7 +149,7 @@ class _CardbalanceState extends State<Cardbalance> {
                               children: <Widget>[
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Row(
                                       children: const <Widget>[
@@ -160,17 +162,20 @@ class _CardbalanceState extends State<Cardbalance> {
                                             style: TextStyle(fontSize: 16)),
                                       ],
                                     ),
-                                    Text(
-                                      '${textToCurrency(inCome.toString())} đ',
-                                      style: const TextStyle(
-                                          color: Colors.green, fontSize: 18),
+                                    Flexible(
+                                      child: Text(
+                                        '${textToCurrency(inCome.toString())} đ',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            color: Colors.green, fontSize: 18),
+                                      ),
                                     )
                                   ],
                                 ),
                                 const SizedBox(height: 20),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Row(
                                       children: const <Widget>[
@@ -183,10 +188,13 @@ class _CardbalanceState extends State<Cardbalance> {
                                             style: TextStyle(fontSize: 16)),
                                       ],
                                     ),
-                                    Text(
-                                      '${textToCurrency(outCome.toString())} đ',
-                                      style: const TextStyle(
-                                          color: Colors.red, fontSize: 18),
+                                    Flexible(
+                                      child: Text(
+                                        '${textToCurrency(outCome.toString())} đ',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            color: Colors.red, fontSize: 18),
+                                      ),
                                     )
                                   ],
                                 ),
@@ -195,36 +203,46 @@ class _CardbalanceState extends State<Cardbalance> {
                                 const SizedBox(height: 10),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     const Text('Tích lũy',
                                         style: TextStyle(fontSize: 16)),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          textToCurrency(
-                                            accumulation > 100000000 ||
-                                                accumulation < -100000000
-                                                ? accumulation
-                                                .toString()
-                                                .substring(
-                                                0,
-                                                accumulation
-                                                    .toString()
-                                                    .length -
-                                                    6)
-                                                : accumulation.toString(),
+                                    Flexible(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              textToCurrency(
+                                                accumulation > 100000000 ||
+                                                        accumulation <
+                                                            -100000000
+                                                    ? accumulation
+                                                        .toString()
+                                                        .substring(
+                                                            0,
+                                                            accumulation
+                                                                    .toString()
+                                                                    .length -
+                                                                6)
+                                                    : accumulation.toString(),
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              style:
+                                                  const TextStyle(fontSize: 18),
+                                            ),
                                           ),
-                                          style: const TextStyle(fontSize: 18),
-                                        ),
-                                        Text(
-                                          accumulation > 100000000 ||
-                                              accumulation < -100000000
-                                              ? 'tr đ'
-                                              : 'đ',
-                                          style: const TextStyle(fontSize: 18),
-                                        ),
-                                      ],
+                                          Text(
+                                            accumulation > 100000000 ||
+                                                    accumulation < -100000000
+                                                ? 'tr đ'
+                                                : 'đ',
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -245,7 +263,7 @@ class _CardbalanceState extends State<Cardbalance> {
                                 )
                               ],
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),

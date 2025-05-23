@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/account_bloc.dart';
 import 'package:wallet_exe/data/model/Account.dart';
 import 'package:wallet_exe/enums/account_type.dart';
@@ -45,8 +46,10 @@ class _UpdateAccountPageState extends State<UpdateAccountPage> {
     String? url = await FlutterCircleImagePicker.showCircleImagePicker(
       context,
       imageSize: 60,
-      imagePickerShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      title: const Text('Chọn ảnh tài khoản', style: TextStyle(fontWeight: FontWeight.bold)),
+      imagePickerShape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      title: const Text('Chọn ảnh tài khoản',
+          style: TextStyle(fontWeight: FontWeight.bold)),
       closeChild: const Text('Đóng', textScaleFactor: 1.25),
       searchHintText: 'Tìm ảnh...',
       noResultsText: 'Không tìm thấy:',
@@ -61,7 +64,8 @@ class _UpdateAccountPageState extends State<UpdateAccountPage> {
 
   List<DropdownMenuItem<String>> getDropDownMenuItems() {
     return _option
-        .map((option) => DropdownMenuItem(value: option.name, child: Text(option.name)))
+        .map((option) =>
+            DropdownMenuItem(value: option.name, child: Text(option.name)))
         .toList();
   }
 
@@ -86,14 +90,11 @@ class _UpdateAccountPageState extends State<UpdateAccountPage> {
     );
     updatedAccount.id = _account.id;
 
-    final bloc = AccountBloc();
+    final bloc = Provider.of<AccountBloc>(context,listen: false);
     bloc.initData();
     bloc.event.add(UpdateAccountEvent(updatedAccount));
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => MainPage(index: 2)),
-    );
+    Navigator.pop(context);
   }
 
   @override
@@ -110,31 +111,38 @@ class _UpdateAccountPageState extends State<UpdateAccountPage> {
             children: <Widget>[
               const SizedBox(height: 15),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: Form(
                   key: _formNameKey,
                   child: TextFormField(
-                    validator: (value) =>
-                    value == null || value.trim().isEmpty ? 'Tên tài khoản không được để trống' : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Tên tài khoản không được để trống'
+                        : null,
                     controller: _nameController,
                     autofocus: true,
                     style: const TextStyle(fontSize: 20),
                     decoration: InputDecoration(
                       hintText: 'Tên tài khoản',
                       hintStyle: const TextStyle(fontSize: 20),
-                      icon: Icon(Icons.account_balance_wallet, size: 30, color: Theme.of(context).primaryColor),
+                      icon: Icon(Icons.account_balance_wallet,
+                          size: 30, color: Theme.of(context).primaryColor),
                     ),
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: Form(
                   key: _formBalanceKey,
                   child: TextFormField(
                     validator: (value) {
-                      if (value == null || value.trim().isEmpty) return 'Số dư không được để trống';
-                      return currencyToInt(value) <= 0 ? 'Số tiền phải lớn hơn 0' : null;
+                      if (value == null || value.trim().isEmpty)
+                        return 'Số dư không được để trống';
+                      return currencyToInt(value) <= 0
+                          ? 'Số tiền phải lớn hơn 0'
+                          : null;
                     },
                     controller: _balanceController,
                     keyboardType: TextInputType.number,
@@ -145,13 +153,15 @@ class _UpdateAccountPageState extends State<UpdateAccountPage> {
                       suffixText: 'đ',
                       hintText: 'Số dư ban đầu',
                       hintStyle: const TextStyle(fontSize: 20),
-                      icon: Icon(Icons.attach_money, size: 30, color: Theme.of(context).primaryColor),
+                      icon: Icon(Icons.attach_money,
+                          size: 30, color: Theme.of(context).primaryColor),
                     ),
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -174,7 +184,9 @@ class _UpdateAccountPageState extends State<UpdateAccountPage> {
                     Row(
                       children: <Widget>[
                         Text('Loại:',
-                            style: TextStyle(fontSize: 18, color: Colors.black.withOpacity(0.5))),
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black.withOpacity(0.5))),
                         const SizedBox(width: 10),
                         DropdownButton<String>(
                           value: _currentOption,
@@ -187,14 +199,16 @@ class _UpdateAccountPageState extends State<UpdateAccountPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: TextFormField(
                   controller: _descriptionController,
                   style: const TextStyle(fontSize: 20),
                   decoration: InputDecoration(
                     hintText: 'Diễn giải',
                     hintStyle: const TextStyle(fontSize: 20),
-                    icon: Icon(Icons.subject, size: 30, color: Theme.of(context).primaryColor),
+                    icon: Icon(Icons.subject,
+                        size: 30, color: Theme.of(context).primaryColor),
                   ),
                 ),
               ),
@@ -210,7 +224,8 @@ class _UpdateAccountPageState extends State<UpdateAccountPage> {
                       children: <Widget>[
                         const Icon(Icons.save, size: 28),
                         const SizedBox(width: 5),
-                        Text('Lưu', style: Theme.of(context).textTheme.titleMedium),
+                        Text('Lưu',
+                            style: Theme.of(context).textTheme.titleMedium),
                       ],
                     ),
                   ),

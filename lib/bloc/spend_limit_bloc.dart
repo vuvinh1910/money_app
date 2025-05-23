@@ -19,12 +19,13 @@ class SpendLimitBloc extends BaseBloc {
 
   List<SpendLimit> get spendLimitListData => _spendLimitListData;
 
-  initData() async {
-    if (_spendLimitListData.length != 0) return;
-    _spendLimitListData = await _spendLimitTable.getAll();
-    if (_spendLimitListData == null) return;
-
-    _spendLimitListStreamController.sink.add(_spendLimitListData);
+  void initData() async {
+    _spendLimitListData = await _spendLimitTable.getAll() ?? [];
+    print(
+        'SpendLimitBloc init: Loaded ${_spendLimitListData.length} spend limits');
+    if (!_spendLimitListStreamController.isClosed) {
+      _spendLimitListStreamController.sink.add(_spendLimitListData);
+    }
   }
 
   _addSpendLimit(SpendLimit spendLimit) async {

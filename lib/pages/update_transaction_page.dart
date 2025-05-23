@@ -90,13 +90,12 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
   @override
   Widget build(BuildContext context) {
     var _bloc = Provider.of<TransactionBloc>(context, listen: false);
-    var _blocAccount = AccountBloc();
+    var _blocAccount = Provider.of<AccountBloc>(context, listen: false);
     _bloc.initData();
     _blocAccount.initData();
 
     void _submit() {
       if (!(_formBalanceKey.currentState?.validate() ?? false)) return;
-
       if (_account == null || _category == null) return;
 
       DateTime saveTime = DateTime(
@@ -107,50 +106,88 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
         _selectedTime.minute,
       );
 
-      Transaction transaction = Transaction(
+      int newAmount = currencyToInt(_balanceController.text);
+      int oldAmount = _transaction.amount;
+
+      // Lấy các thông tin cũ của giao dịch
+      final Account originalAccount = _transaction.account;
+      final Category originalCategory = _transaction.category;
+
+      // Tạo đối tượng Transaction mới
+      Transaction updatedTransaction = Transaction(
         id: _transaction.id,
-        account: _account,
-        category: _category,
-        amount: currencyToInt(_balanceController.text),
+        account: _account, // Tài khoản có thể đã thay đổi
+        category: _category, // Danh mục có thể đã thay đổi
+        amount: newAmount,
         date: saveTime,
         description: _descriptionController.text,
       );
 
-      _bloc.event.add(UpdateTransactionEvent(transaction));
+      // Gửi sự kiện cập nhật giao dịch
+      _bloc.event.add(UpdateTransactionEvent(updatedTransaction));
 
-      // Cập nhật số dư tài khoản
-      int newAmount = currencyToInt(_balanceController.text);
-      int oldAmount = _transaction.amount;
+      // --- Logic Cập nhật Số dư Tài khoản ---
 
-      if (_category.transactionType == TransactionType.EXPENSE) {
-        if (_transaction.category.transactionType == TransactionType.EXPENSE) {
-          _account.balance -= (newAmount - oldAmount);
-        } else {
-          _account.balance -= (newAmount + oldAmount);
+      // Trường hợp 1: Tài khoản KHÔNG thay đổi
+      if (originalAccount.id == _account.id) {
+        if (_category.transactionType == TransactionType.EXPENSE) {
+          if (originalCategory.transactionType == TransactionType.EXPENSE) {
+            _account.balance -= (newAmount - oldAmount);
+          } else { // Chuyển từ Thu nhập sang Chi tiêu
+            _account.balance -= (newAmount + oldAmount);
+          }
+        } else { // Giao dịch mới là Thu nhập
+          if (originalCategory.transactionType == TransactionType.EXPENSE) { // Chuyển từ Chi tiêu sang Thu nhập
+            _account.balance += (newAmount + oldAmount);
+          } else { // Vẫn là Thu nhập
+            _account.balance += (newAmount - oldAmount);
+          }
         }
+        // Cập nhật tài khoản ĐANG ĐƯỢC CHỌN (vì nó chính là tài khoản gốc)
+        _blocAccount.event.add(UpdateAccountEvent(_account));
+
       } else {
-        if (_transaction.category.transactionType == TransactionType.EXPENSE) {
-          _account.balance += (newAmount + oldAmount);
+        // Trường hợp 2: Tài khoản CÓ thay đổi
+        // Bước A: Hoàn tác ảnh hưởng của giao dịch CŨ lên tài khoản GỐC
+        if (originalCategory.transactionType == TransactionType.EXPENSE) {
+          originalAccount.balance += oldAmount; // Cộng lại số tiền đã chi vào tài khoản gốc
         } else {
-          _account.balance += (newAmount - oldAmount);
+          originalAccount.balance -= oldAmount; // Trừ số tiền đã thu khỏi tài khoản gốc
         }
+        _blocAccount.event.add(UpdateAccountEvent(originalAccount)); // Cập nhật tài khoản gốc
+
+        // Bước B: Áp dụng ảnh hưởng của giao dịch MỚI lên tài khoản ĐƯỢC CHỌN
+        if (_category.transactionType == TransactionType.EXPENSE) {
+          _account.balance -= newAmount; // Trừ số tiền mới vào tài khoản mới
+        } else {
+          _account.balance += newAmount; // Cộng số tiền mới vào tài khoản mới
+        }
+        _blocAccount.event.add(UpdateAccountEvent(_account)); // Cập nhật tài khoản mới
       }
 
-      _blocAccount.event.add(UpdateAccountEvent(_account));
       Navigator.pop(context);
     }
 
     void _delete() {
+      // Lấy tài khoản gốc của giao dịch
+      final Account originalAccount = _transaction.account;
+      final int transactionAmount = _transaction.amount;
+      final TransactionType transactionType = _transaction.category.transactionType;
+
+      // Gửi sự kiện xóa giao dịch
       _bloc.event.add(DeleteTransactionEvent(_transaction));
 
-      // Update account balance after deletion
-      if (_category.transactionType == TransactionType.EXPENSE) {
-        _account.balance += _transaction.amount; // Add back the expense amount
+      // Cập nhật số dư tài khoản GỐC sau khi xóa
+      // Hoàn tác số tiền giao dịch lên tài khoản gốc
+      if (transactionType == TransactionType.EXPENSE) {
+        originalAccount.balance += transactionAmount; // Nếu là chi tiêu, cộng lại tiền vào tài khoản gốc
       } else {
-        _account.balance -= _transaction.amount; // Subtract the income amount
+        originalAccount.balance -= transactionAmount; // Nếu là thu nhập, trừ đi tiền khỏi tài khoản gốc
       }
 
-      _blocAccount.event.add(UpdateAccountEvent(_account));
+      // Gửi sự kiện cập nhật tài khoản gốc
+      _blocAccount.event.add(UpdateAccountEvent(originalAccount));
+
       Navigator.pop(context);
     }
 

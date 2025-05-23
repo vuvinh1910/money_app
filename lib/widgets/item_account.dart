@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/account_bloc.dart';
 import 'package:wallet_exe/data/model/Account.dart';
 import 'package:wallet_exe/event/account_event.dart';
@@ -13,16 +14,21 @@ class ItemAccount extends StatefulWidget {
 
   @override
   State<ItemAccount> createState() => _ItemAccountState();
+
 }
 
 class _ItemAccountState extends State<ItemAccount> {
+  late AccountBloc bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    bloc = Provider.of<AccountBloc>(context, listen: false);
+    bloc.initData();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bloc = AccountBloc();
-    bloc.initData();
-    // var bloc = Provider.of<AccountBloc>(context);
-    // bloc.initData();
-
     _moreOption(int option) {
       if (option == 0) {
         Navigator.push(
@@ -32,15 +38,7 @@ class _ItemAccountState extends State<ItemAccount> {
         );
       } else if (option == 1) {
         setState(() {
-          bloc.event.add(DeleteAccountEvent(widget._account));
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainPage(
-                index: 2,
-              ),
-            ),
-          );
+          bloc.dispatchEvent(DeleteAccountEvent(widget._account));
         });
       }
     }

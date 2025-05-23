@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:wallet_exe/data/dao/account_table.dart';
+import 'package:provider/provider.dart';
+import 'package:wallet_exe/bloc/account_bloc.dart';
 import 'package:wallet_exe/utils/text_input_formater.dart';
 import 'package:wallet_exe/widgets/card_list_account.dart';
 
 class AccountFragment extends StatefulWidget {
-  AccountFragment({Key? key}) : super(key: key);
+  const AccountFragment({Key? key}) : super(key: key);
 
   @override
   _AccountFragmentState createState() => _AccountFragmentState();
@@ -13,18 +14,21 @@ class AccountFragment extends StatefulWidget {
 class _AccountFragmentState extends State<AccountFragment> {
   @override
   Widget build(BuildContext context) {
+    final accountBloc = Provider.of<AccountBloc>(context, listen: false);
+
     return Container(
+      padding: const EdgeInsets.all(15),
       child: Column(
         children: <Widget>[
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(15),
+            padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
               color: Theme.of(context).brightness == Brightness.dark
                   ? Colors.blueGrey
                   : Colors.white,
               borderRadius: BorderRadius.circular(8.0),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
                   offset: Offset(0.0, 15.0),
@@ -32,28 +36,27 @@ class _AccountFragmentState extends State<AccountFragment> {
                 ),
               ],
             ),
-            child: FutureBuilder(
-                future: AccountTable().getTotalBalance(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasError) {
-                    print(snapshot.error.toString());
-                    return Center(child: Text(snapshot.error.toString()));
-                  } else if (snapshot.hasData) {
-                    return Text(
-                      'Tổng: ' + textToCurrency(snapshot.data.toString()) + 'đ',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    );
-                  }
-                  return Container(
-                    width: 50,
-                    height: 50,
-                    child: CircularProgressIndicator(),
+            child: StreamBuilder<int>(
+              stream: accountBloc.totalBalanceStream,
+              builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+                if (snapshot.hasError) {
+                  print('AccountFragment: Error = ${snapshot.error}');
+                  return Center(child: Text('Lỗi: ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  return Text(
+                    'Tổng: ${textToCurrency(snapshot.data.toString())}đ',
+                    style: Theme.of(context).textTheme.bodyLarge,
                   );
-                }),
+                }
+                return const SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: CircularProgressIndicator(),
+                );
+              },
+            ),
           ),
-          SizedBox(
-            height: 15,
-          ),
+          const SizedBox(height: 15),
           CardListAccount(),
         ],
       ),

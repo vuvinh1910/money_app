@@ -12,6 +12,7 @@ import 'package:wallet_exe/bloc/transaction_bloc.dart';
 import 'package:wallet_exe/data/database_helper.dart';
 import 'package:wallet_exe/pages/main_page.dart';
 import 'package:wallet_exe/services/AuthService.dart';
+import 'package:wallet_exe/services/notification_service.dart';
 import 'package:wallet_exe/services/sync_service.dart';
 import 'package:wallet_exe/themes/theme_bloc.dart';
 import 'package:wallet_exe/widgets/auth_screen.dart';
@@ -28,6 +29,7 @@ void main() async {
       const Settings(persistenceEnabled: true);
   await DatabaseHelper.instance.database;
   await requestNotificationPermission();
+  await initNotifications();
 
   // Đồng bộ từ cloud khi mở app
   final user = FirebaseAuth.instance.currentUser;
