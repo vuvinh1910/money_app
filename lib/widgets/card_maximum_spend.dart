@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wallet_exe/bloc/spend_limit_bloc.dart';
 import 'package:wallet_exe/data/model/SpendLimit.dart';
 import 'package:wallet_exe/pages/choose_spend_limit_page.dart';
+import 'package:wallet_exe/utils/app_preferences.dart';
 import 'package:wallet_exe/widgets/item_maximum_spend.dart';
 
 class CardMaximunSpend extends StatefulWidget {
@@ -20,6 +21,13 @@ class _CardMaximunSpendState extends State<CardMaximunSpend> {
     super.initState();
     _bloc = SpendLimitBloc();
     _bloc.initData();
+    AppPreferences.getSelectedSpendLimitIndex().then((value) {
+      if (value != null) {
+        setState(() {
+          _currentIndex = value;
+        });
+      }
+    });
   }
 
   _chooseSpendLimit() async {
@@ -29,9 +37,12 @@ class _CardMaximunSpendState extends State<CardMaximunSpend> {
           builder: (context) => ChooseSpendLimitPage(_currentIndex)),
     );
 
-    // prevent null
-    if (temp != null) _currentIndex = temp;
-    setState(() {});
+    if (temp != null) {
+      _currentIndex = temp;
+      await AppPreferences.saveSelectedSpendLimitIndex(
+          _currentIndex); // Lưu lại
+      setState(() {});
+    }
   }
 
   @override

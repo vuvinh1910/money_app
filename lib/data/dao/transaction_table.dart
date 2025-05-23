@@ -100,7 +100,6 @@ class TransactionTable {
     });
   }
 
-  // return the amount that would reach to spend limit
   Future<int> getMoneySpendByDuration(SpendLimitType type) async {
     int result = 0;
     final Database db = await DatabaseHelper.instance.database;
@@ -114,10 +113,36 @@ class TransactionTable {
             (item) => item.category.transactionType == TransactionType.EXPENSE)
         .toList();
 
+    final now = DateTime.now();
+
     if (type == SpendLimitType.MONTHLY) {
-      for (int i = 0; i < list.length; i++) {
-        if (list[i].date.month == DateTime.now().month) {
-          result += list[i].amount;
+      for (var t in list) {
+        if (t.date.year == now.year && t.date.month == now.month) {
+          result += t.amount;
+        }
+      }
+    } else if (type == SpendLimitType.WEEKLY) {
+      // Tuần bắt đầu từ thứ 2
+      final weekStart = now.subtract(Duration(days: now.weekday - 1));
+      final weekEnd = weekStart.add(Duration(days: 6));
+      for (var t in list) {
+        if (!t.date.isBefore(weekStart) && !t.date.isAfter(weekEnd)) {
+          result += t.amount;
+        }
+      }
+    } else if (type == SpendLimitType.YEARLY) {
+      for (var t in list) {
+        if (t.date.year == now.year) {
+          result += t.amount;
+        }
+      }
+    } else if (type == SpendLimitType.QUATERLY) {
+      // Quý hiện tại
+      int currentQuarter = ((now.month - 1) ~/ 3) + 1;
+      for (var t in list) {
+        int tQuarter = ((t.date.month - 1) ~/ 3) + 1;
+        if (t.date.year == now.year && tQuarter == currentQuarter) {
+          result += t.amount;
         }
       }
     }

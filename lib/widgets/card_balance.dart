@@ -146,8 +146,7 @@ class _CardbalanceState extends State<Cardbalance> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Row(
                                       children: const <Widget>[
@@ -156,21 +155,21 @@ class _CardbalanceState extends State<Cardbalance> {
                                           radius: 5.0,
                                         ),
                                         SizedBox(width: 10),
-                                        Text('Thu',
-                                            style: TextStyle(fontSize: 16)),
+                                        Text('Thu', style: TextStyle(fontSize: 16)),
                                       ],
                                     ),
-                                    Text(
-                                      '${textToCurrency(inCome.toString())} đ',
-                                      style: const TextStyle(
-                                          color: Colors.green, fontSize: 18),
+                                    Flexible(
+                                      child: Text(
+                                        '${textToCurrency(inCome.toString())} đ',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(color: Colors.green, fontSize: 18),
+                                      ),
                                     )
                                   ],
                                 ),
                                 const SizedBox(height: 20),
                                 Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Row(
                                       children: const <Widget>[
@@ -179,14 +178,15 @@ class _CardbalanceState extends State<Cardbalance> {
                                           radius: 5.0,
                                         ),
                                         SizedBox(width: 10),
-                                        Text('Chi',
-                                            style: TextStyle(fontSize: 16)),
+                                        Text('Chi', style: TextStyle(fontSize: 16)),
                                       ],
                                     ),
-                                    Text(
-                                      '${textToCurrency(outCome.toString())} đ',
-                                      style: const TextStyle(
-                                          color: Colors.red, fontSize: 18),
+                                    Flexible(
+                                      child: Text(
+                                        '${textToCurrency(outCome.toString())} đ',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(color: Colors.red, fontSize: 18),
+                                      ),
                                     )
                                   ],
                                 ),
@@ -194,37 +194,33 @@ class _CardbalanceState extends State<Cardbalance> {
                                 const Divider(),
                                 const SizedBox(height: 10),
                                 Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
-                                    const Text('Tích lũy',
-                                        style: TextStyle(fontSize: 16)),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          textToCurrency(
-                                            accumulation > 100000000 ||
-                                                accumulation < -100000000
-                                                ? accumulation
-                                                .toString()
-                                                .substring(
-                                                0,
-                                                accumulation
-                                                    .toString()
-                                                    .length -
-                                                    6)
-                                                : accumulation.toString(),
+                                    const Text('Tích lũy', style: TextStyle(fontSize: 16)),
+                                    Flexible(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              textToCurrency(
+                                                accumulation > 100000000 || accumulation < -100000000
+                                                    ? accumulation.toString().substring(
+                                                    0, accumulation.toString().length - 6)
+                                                    : accumulation.toString(),
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(fontSize: 18),
+                                            ),
                                           ),
-                                          style: const TextStyle(fontSize: 18),
-                                        ),
-                                        Text(
-                                          accumulation > 100000000 ||
-                                              accumulation < -100000000
-                                              ? 'tr đ'
-                                              : 'đ',
-                                          style: const TextStyle(fontSize: 18),
-                                        ),
-                                      ],
+                                          Text(
+                                            accumulation > 100000000 || accumulation < -100000000
+                                                ? 'tr đ'
+                                                : 'đ',
+                                            style: const TextStyle(fontSize: 18),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -239,13 +235,12 @@ class _CardbalanceState extends State<Cardbalance> {
                                         style: TextStyle(color: Colors.blue),
                                       ),
                                     ),
-                                    const Icon(Icons.navigate_next,
-                                        color: Colors.blue)
+                                    const Icon(Icons.navigate_next, color: Colors.blue)
                                   ],
                                 )
                               ],
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),

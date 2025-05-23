@@ -1,14 +1,14 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
+    FlutterLocalNotificationsPlugin();
 
 Future<void> initNotifications() async {
   const AndroidInitializationSettings androidSettings =
-  AndroidInitializationSettings('@mipmap/ic_launcher');
+      AndroidInitializationSettings('noti');
 
   const InitializationSettings settings =
-  InitializationSettings(android: androidSettings);
+      InitializationSettings(android: androidSettings);
 
   // Khởi tạo plugin với callback xử lý khi nhấn thông báo
   await flutterLocalNotificationsPlugin.initialize(
@@ -30,7 +30,7 @@ Future<void> showTestNotification() async {
   );
 
   const NotificationDetails notificationDetails =
-  NotificationDetails(android: androidDetails);
+      NotificationDetails(android: androidDetails);
 
   await flutterLocalNotificationsPlugin.show(
     0,
