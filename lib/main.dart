@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:wallet_exe/bloc/account_bloc.dart'; // Thêm import AccountBloc
 import 'package:wallet_exe/bloc/auth_bloc.dart';
 import 'package:wallet_exe/bloc/category_bloc.dart';
 import 'package:wallet_exe/bloc/spend_limit_bloc.dart';
@@ -17,7 +18,7 @@ import 'package:wallet_exe/services/sync_service.dart';
 import 'package:wallet_exe/themes/theme_bloc.dart';
 import 'package:wallet_exe/widgets/auth_screen.dart';
 import 'package:wallet_exe/widgets/verify_email.dart';
-import './bloc/account_bloc.dart';
+import 'package:wallet_exe/themes/theme.dart'; // Đảm bảo import AppTheme và myThemes
 import 'event/auth_event.dart';
 import 'event/auth_state.dart';
 import 'firebase_options.dart';
@@ -26,7 +27,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseFirestore.instance.settings =
-      const Settings(persistenceEnabled: true);
+  const Settings(persistenceEnabled: true);
   await DatabaseHelper.instance.database;
   await requestNotificationPermission();
   await initNotifications();
@@ -77,38 +78,60 @@ class MyApp extends StatelessWidget {
         Provider<TransactionBloc>.value(value: transactionBloc),
         Provider<CategoryBloc>.value(value: categoryBloc),
         Provider<SpendLimitBloc>.value(value: spendLimitBloc),
+        // Đảm bảo themeBloc được cung cấp ở đây
         Provider<ThemeBloc>.value(value: themeBloc),
+        // AuthBloc nên được cung cấp qua BlocProvider nếu bạn dùng flutter_bloc cho nó
       ],
-      child: BlocProvider(
+      child: BlocProvider( // Cung cấp AuthBloc bằng BlocProvider
         create: (context) => authBloc,
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Wallet Exe',
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
-            fontFamily: 'Quicksand',
-          ),
-          home: BlocConsumer<AuthBloc, AuthState>(
-            listener: (context, state) {
-              if (state is AuthError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
-              }
-            },
-            builder: (context, state) {
-              if (state is AuthLoading) {
-                return Scaffold(
-                    body: Center(child: CircularProgressIndicator()));
-              } else if (state is AuthAuthenticated) {
-                return MainPage();
-              } else if (state is AuthNeedsVerification) {
-                return VerifyEmailScreen();
-              } else {
-                return AuthScreen();
-              }
-            },
-          ),
+        // Bao bọc MaterialApp bằng StreamBuilder để lắng nghe themeBloc
+        child: StreamBuilder<AppTheme>(
+          stream: themeBloc.outTheme,
+          // Đặt theme mặc định ban đầu.
+          // Đảm bảo myThemes đã được định nghĩa và có ít nhất một phần tử.
+          initialData: myThemes[0], // Ví dụ: Amber là theme mặc định ban đầu
+          builder: (context, snapshot) {
+            final AppTheme currentAppTheme = snapshot.data ?? myThemes[0]; // Fallback nếu snapshot.data là null
+
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'Wallet Exe',
+              // Áp dụng ThemeData từ AppTheme được chọn
+              theme: ThemeData(
+                brightness: currentAppTheme.theme.brightness,
+                primarySwatch: currentAppTheme.theme.primarySwatch,
+                // Sử dụng colorScheme để thiết lập secondary (accent) color đúng cách
+                colorScheme: ColorScheme.fromSwatch(
+                  primarySwatch: currentAppTheme.theme.primarySwatch,
+                  brightness: currentAppTheme.theme.brightness,
+                ).copyWith(secondary: currentAppTheme.theme.accentColor),
+                fontFamily: 'Quicksand',
+                visualDensity: VisualDensity.adaptivePlatformDensity,
+                // Bạn có thể thêm các tùy chỉnh theme khác ở đây nếu cần
+              ),
+              home: BlocConsumer<AuthBloc, AuthState>(
+                listener: (context, state) {
+                  if (state is AuthError) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.message)),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  if (state is AuthLoading) {
+                    return Scaffold(
+                        body: Center(child: CircularProgressIndicator()));
+                  } else if (state is AuthAuthenticated) {
+                    return MainPage();
+                  } else if (state is AuthNeedsVerification) {
+                    return VerifyEmailScreen();
+                  } else {
+                    return AuthScreen();
+                  }
+                },
+              ),
+            );
+          },
         ),
       ),
     );
