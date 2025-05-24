@@ -20,26 +20,51 @@ class _CardSpendChartState extends State<CardSpendChart> {
   int selectedYear = DateTime.now().year;
 
   Future<void> _selectYear(BuildContext context) async {
+    final int currentYear = DateTime.now().year;
+
     final int? picked = await showDialog<int>(
       context: context,
+      barrierDismissible: true, // Cho phép đóng bằng cách tap ra ngoài
       builder: (BuildContext context) {
         return Dialog(
-          child: SizedBox(
-            width: 300,
-            height: 400,
-            child: YearPicker(
-              firstDate: DateTime(2015),
-              lastDate: DateTime(2101),
-              initialDate: DateTime(selectedYear),
-              selectedDate: DateTime(selectedYear),
-              onChanged: (DateTime dateTime) {
-                Navigator.pop(context, dateTime.year);
-              },
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          clipBehavior: Clip.antiAlias, // Tối ưu rendering
+          child: RepaintBoundary( // Giảm repaint không cần thiết
+            child: SizedBox(
+              width: 300,
+              height: 400,
+              child: Column(
+                children: [
+                  // Header đơn giản
+                  Container(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'Chọn năm',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  // YearPicker được tối ưu
+                  Expanded(
+                    child: YearPicker(
+                      firstDate: DateTime(currentYear - 90), // 90 năm về trước
+                      lastDate: DateTime(currentYear + 4),   // 4 năm tới
+                      initialDate: DateTime(selectedYear),
+                      selectedDate: DateTime(selectedYear),
+                      onChanged: (DateTime dateTime) {
+                        Navigator.pop(context, dateTime.year);
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
       },
     );
+
     if (picked != null && picked != selectedYear) {
       setState(() {
         selectedYear = picked;
@@ -48,8 +73,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
   }
 
   String _getTitle() {
-    String end =
-        (selectedYear == DateTime.now().year) ? 'nay' : selectedYear.toString();
+    String end = (selectedYear == DateTime.now().year) ? 'nay' : selectedYear.toString();
     return 'Chi tiêu năm ' + end;
   }
 
@@ -97,9 +121,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
       width: double.infinity,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.blueGrey
-            : Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark ? Colors.blueGrey : Colors.white,
         borderRadius: BorderRadius.circular(8.0),
         boxShadow: const [
           BoxShadow(
@@ -114,8 +136,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.active:
-              final List<Transaction> transactions =
-                  snapshot.data as List<Transaction>;
+              final List<Transaction> transactions = snapshot.data as List<Transaction>;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -145,9 +166,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
                     width: double.infinity,
                     child: SpendChart(_getData(transactions)),
                   ),
-                  widget.showDetail
-                      ? _detailContent(_getTotal(transactions))
-                      : const SizedBox(height: 10),
+                  widget.showDetail ? _detailContent(_getTotal(transactions)) : const SizedBox(height: 10),
                 ],
               );
             default:
@@ -167,8 +186,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
   int _getTotal(List<Transaction> list) {
     int total = 0;
     for (var transaction in list) {
-      if (transaction.date.year == selectedYear &&
-          transaction.category.transactionType == TransactionType.EXPENSE) {
+      if (transaction.date.year == selectedYear && transaction.category.transactionType == TransactionType.EXPENSE) {
         total += transaction.amount;
       }
     }
@@ -179,8 +197,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
     List<int> totalByMonth = List.filled(12, 0);
 
     for (var transaction in list) {
-      if (transaction.category.transactionType == TransactionType.EXPENSE &&
-          transaction.date.year == selectedYear) {
+      if (transaction.category.transactionType == TransactionType.EXPENSE && transaction.date.year == selectedYear) {
         totalByMonth[transaction.date.month - 1] += transaction.amount;
       }
     }
@@ -197,8 +214,7 @@ class _CardSpendChartState extends State<CardSpendChart> {
         measureFn: (MoneySpend spend, _) => spend.money,
         data: data,
         // Hiển thị số tiền trên mỗi cột
-        labelAccessorFn: (MoneySpend spend, _) =>
-            spend.money > 0 ? '${spend.money}' : '',
+        labelAccessorFn: (MoneySpend spend, _) => spend.money > 0 ? '${spend.money}' : '',
       )
     ];
   }

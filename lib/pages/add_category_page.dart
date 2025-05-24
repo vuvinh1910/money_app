@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/bloc/category_bloc.dart';
 import 'package:wallet_exe/data/model/Category.dart';
 import 'package:wallet_exe/enums/transaction_type.dart';
@@ -87,8 +88,7 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final _bloc = CategoryBloc();
-
+    final _bloc = Provider.of<CategoryBloc>(context,listen: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tạo hạng mục mới'),

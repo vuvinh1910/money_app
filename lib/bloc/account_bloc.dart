@@ -23,7 +23,9 @@ class AccountBloc extends BaseBloc {
 
   void _updateTotalBalance() async {
     final totalStr = await _accountTable.getTotalBalance();
-    final total = int.tryParse(totalStr.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    // Chỉ loại bỏ các ký tự không phải số và không phải dấu trừ
+    final cleanedStr = totalStr.replaceAll(RegExp(r'[^0-9-]'), '');
+    final total = int.tryParse(cleanedStr) ?? 0;
     print('Total balance: $total');
     if (!_totalBalanceController.isClosed) {
       _totalBalanceController.sink.add(total);

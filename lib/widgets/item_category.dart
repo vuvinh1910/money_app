@@ -1,55 +1,78 @@
 import 'package:flutter/material.dart';
-import 'package:wallet_exe/bloc/category_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:wallet_exe/data/model/Category.dart';
+import 'package:wallet_exe/bloc/category_bloc.dart';
 import 'package:wallet_exe/event/category_event.dart';
 
-class ItemCategory extends StatefulWidget {
-  final Category _category;
+class ItemCategory extends StatelessWidget {
+  final Category category;
+  final Function(Category)? onDelete; // Làm optional
 
-  const ItemCategory(this._category);
+  const ItemCategory(this.category, {Key? key, this.onDelete}) : super(key: key);
 
-  @override
-  State<ItemCategory> createState() => _ItemCategoryState();
-}
+  Future<bool?> _showDeleteConfirmation(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Xác nhận xóa'),
+        content: Text('Bạn có chắc muốn xóa danh mục "${category.name}"?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Hủy')
+          ),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Xóa', style: TextStyle(color: Colors.red))
+          ),
+        ],
+      ),
+    );
+  }
 
-class _ItemCategoryState extends State<ItemCategory> {
+  void _deleteCategory(BuildContext context) {
+    // Chỉ gửi event một lần tới bloc
+    final bloc = Provider.of<CategoryBloc>(context, listen: false);
+    bloc.event.add(DeleteCategoryEvent(category));
+
+    // Gọi callback nếu có (để update UI local)
+    onDelete?.call(category);
+
+    // Hiển thị thông báo
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Đã xóa danh mục "${category.name}"'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bloc = CategoryBloc();
     return Dismissible(
-      key: Key(widget._category.id.toString()),
-      onDismissed: (direction) {
-        bloc.event.add(DeleteCategoryEvent(widget._category));
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("đã xóa danh mục")));
-      },
+      key: Key(category.id.toString()),
       direction: DismissDirection.endToStart,
+      confirmDismiss: (_) => _showDeleteConfirmation(context),
+      onDismissed: (_) => _deleteCategory(context),
       background: Container(
-          color: Colors.red,
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-            Text("Xóa",
-                style: TextStyle(
-                    color: Colors.white70,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16)),
-            SizedBox(
-              width: 20,
-            ),
-          ])),
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Icon(Icons.delete, color: Colors.white),
+            SizedBox(width: 8),
+            Text("Xóa", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
       child: ListTile(
-        leading: Icon(widget._category.icon),
-        title: Text(widget._category.name),
-        trailing: Icon(Icons.keyboard_arrow_right),
+        leading: Icon(category.icon),
+        title: Text(category.name),
+        trailing: const Icon(Icons.keyboard_arrow_right),
         onTap: () {
-          Category category;
-          setState(() {
-            category = widget._category;
-            Navigator.pop(
-              context,
-              category,
-            );
-          });
+          Navigator.pop(context, category);
         },
       ),
     );
