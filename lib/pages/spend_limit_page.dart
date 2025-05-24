@@ -41,19 +41,6 @@ class _SpendLimitPageState extends State<SpendLimitPage> {
       Navigator.pop(context);
     }
 
-    void _delete() {
-      if (!(_formspendLimitKey.currentState?.validate() ?? false)) return;
-
-      SpendLimit item = SpendLimit(
-        amount: currencyToInt(_spendLimitController.text),
-        type: widget._spendLimit.type,
-      );
-      item.id = widget._spendLimit.id;
-      widget.bloc.event.add(DeleteSpendLimitEvent(item));
-
-      Navigator.pop(context);
-    }
-
     Future<void> _chooseType() async {
       var temp = await Navigator.push(
         context,
@@ -138,13 +125,13 @@ class _SpendLimitPageState extends State<SpendLimitPage> {
                               decoration: InputDecoration(
                                 suffixText: 'đ',
                                 suffixStyle: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium ??
+                                    .textTheme
+                                    .headlineMedium ??
                                     TextStyle(fontSize: 20),
                                 prefix: Icon(
                                   Icons.monetization_on,
                                   color:
-                                      Theme.of(context).colorScheme.secondary,
+                                  Theme.of(context).colorScheme.secondary,
                                   size: 26,
                                 ),
                                 hintText: '0',
@@ -231,49 +218,22 @@ class _SpendLimitPageState extends State<SpendLimitPage> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(right: 5),
-                              child: TextButton(
-                                onPressed: _submit,
-                                child: Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.save, size: 28),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        'Lưu',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 5),
-                              child: TextButton(
-                                onPressed: _delete,
-                                child: Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.delete, size: 28),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        'Xóa',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium,
-                                      ),
-                                    ],
-                                  ),
+                            child: TextButton(
+                              onPressed: _submit,
+                              child: Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.save, size: 28),
+                                    SizedBox(width: 5),
+                                    Text(
+                                      'Lưu',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),

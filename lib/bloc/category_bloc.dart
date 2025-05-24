@@ -10,7 +10,7 @@ class CategoryBloc extends BaseBloc {
   CategoryTable _categorytable = CategoryTable();
 
   StreamController<List<Category>> _categoryListStreamController =
-      StreamController<List<Category>>();
+  StreamController<List<Category>>.broadcast();
 
   Stream<List<Category>> get categoryListStream =>
       _categoryListStreamController.stream;
@@ -29,27 +29,32 @@ class CategoryBloc extends BaseBloc {
   }
 
   _addCategory(Category category) async {
-    _categorytable.insert(category);
-
-    _categoryListData.add(category);
-    _categoryListStreamController.sink.add(_categoryListData);
+    await _categorytable.insert(category); // Dùng await để đảm bảo thao tác DB hoàn thành
+    // Sau khi thêm vào DB, tải lại toàn bộ dữ liệu để đảm bảo đồng bộ ID và cập nhật Stream
+    initData();
   }
 
   _deleteCategory(Category category) async {
-    _categorytable.delete(category.id!);
-
-    _categoryListData.remove(category);
-    _categoryListStreamController.sink.add(_categoryListData);
+    // Thêm kiểm tra null an toàn trước khi sử dụng '!'
+    if (category.id != null) {
+      await _categorytable.delete(category.id!); // Dùng await
+      // Sau khi xóa khỏi DB, tải lại toàn bộ dữ liệu để đảm bảo đồng bộ và cập nhật Stream
+      initData();
+    } else {
+      print("Lỗi: Không thể xóa danh mục vì ID là null: ${category.name}");
+      // Có thể tải lại dữ liệu để cố gắng đồng bộ lại UI với DB
+      initData();
+    }
   }
 
   _updateCategory(Category category) async {
-    _categorytable.update(category);
-
-    int index = _categoryListData.indexWhere((item) {
-      return item.id == category.id;
-    });
-    _categoryListData[index] = category;
-    _categoryListStreamController.sink.add(_categoryListData);
+    if (category.id != null) {
+      await _categorytable.update(category); // Dùng await
+      // Sau khi cập nhật DB, tải lại toàn bộ dữ liệu để đảm bảo đồng bộ và cập nhật Stream
+      initData();
+    } else {
+      print("Lỗi: Không thể cập nhật danh mục vì ID là null: ${category.name}");
+    }
   }
 
   void dispatchEvent(BaseEvent event) {
@@ -67,7 +72,7 @@ class CategoryBloc extends BaseBloc {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    _categoryListStreamController.close(); // Đảm bảo đóng StreamController
     super.dispose();
   }
 }

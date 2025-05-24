@@ -26,9 +26,6 @@ class TransactionTable {
         '$description TEXT,'
         '$idCategory INTEGER NOT NULL,'
         '$idAccount INTEGER NOT NULL)');
-
-    db.execute(
-        'INSERT INTO $tableName VALUES(null,"2007-01-01 10:00:00",0,"",1,1)');
   }
 
   Future<List<trans.Transaction>> getAll() async {

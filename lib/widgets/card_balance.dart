@@ -58,15 +58,11 @@ class _CardbalanceState extends State<Cardbalance> {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.active:
-              if (snapshot.data == null || snapshot.data!.isEmpty) {
-                return const SizedBox(height: 15);
-              }
-
+              final transactions = snapshot.data ?? [];
               final values = TransactionTable().getTotal(
-                  snapshot.data!, // ✅ chắc chắn không null ở đây
-                  DurationFilter.valueFromName(
-                      _currentOption)! // ✅ đảm bảo không null
-                  );
+                transactions,
+                DurationFilter.valueFromName(_currentOption)!,
+              );
 
               final inCome = values[0];
               final outCome = values[1];
@@ -110,19 +106,23 @@ class _CardbalanceState extends State<Cardbalance> {
                               Padding(
                                 padding: const EdgeInsets.all(20.0),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: <Widget>[
-                                    Container(
-                                      height: outComeHeight,
-                                      width: 50,
-                                      color: Colors.red,
+                                    Flexible(
+                                      child: Container(
+                                        height: outComeHeight,
+                                        width: 40,
+                                        color: Colors.red,
+                                      ),
                                     ),
-                                    Container(
-                                      height: inComeHeight,
-                                      width: 50,
-                                      color: Colors.green,
+                                    const SizedBox(width: 16), // khoảng cách giữa hai cột
+                                    Flexible(
+                                      child: Container(
+                                        height: inComeHeight,
+                                        width: 40,
+                                        color: Colors.green,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -247,19 +247,42 @@ class _CardbalanceState extends State<Cardbalance> {
                                   ],
                                 ),
                                 const SizedBox(height: 10),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: <Widget>[
-                                    InkWell(
+                                // Thay thế phần Row cuối cùng trong Column bằng code này:
+
+                                Container(
+                                  margin: const EdgeInsets.only(top: 10),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
                                       onTap: _navToRecords,
-                                      child: const Text(
-                                        "Xem ghi chép",
-                                        style: TextStyle(color: Colors.blue),
+                                      borderRadius: BorderRadius.circular(8),
+                                      splashColor: Colors.blue.withOpacity(0.2),
+                                      highlightColor: Colors.blue.withOpacity(0.1),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: const <Widget>[
+                                            Text(
+                                              "Xem ghi chép",
+                                              style: TextStyle(
+                                                color: Colors.blue,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            SizedBox(width: 4),
+                                            Icon(
+                                              Icons.arrow_forward_ios,
+                                              color: Colors.blue,
+                                              size: 14,
+                                            )
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                    const Icon(Icons.navigate_next,
-                                        color: Colors.blue)
-                                  ],
+                                  ),
                                 )
                               ],
                             ),
